@@ -3,11 +3,6 @@ const router = express.Router();
 const Player = require('../models/players');
 const Match = require('../models/matches');
 
-
-
-
-
-
 router.get('/', (req, res) => {
   // Retrieve player data from the MongoDB collection
   Player.find()

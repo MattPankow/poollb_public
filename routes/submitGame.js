@@ -3,11 +3,6 @@ const router = express.Router();
 const Player = require('../models/players');
 const Match = require('../models/matches');
 
-
-
-
-
-
 router.get('/', (req, res) => {
   // Retrieve player data from the MongoDB collection
   Player.find()
@@ -22,7 +17,7 @@ router.get('/', (req, res) => {
     });
 });
 
-const getName= async (playerId) => {
+const getName = async (playerId) => {
   try {
     const player = await Player.findById(playerId);
     if (!player) {
@@ -35,8 +30,6 @@ const getName= async (playerId) => {
     return null; // Handle the error and return an appropriate value
   }
 };
-
-
 
 const getPlayerRating = async (playerId) => {
   return Player.findById(playerId)
@@ -75,11 +68,7 @@ const updateRatings = async(playerID, newRating) => {
     console.error('Error updating player rating:', error);
     return null; // Handle the error and return an appropriate value
   }
-
 };
-
-
-
 
 const calculateElo1v1 = async (formData) => {
   let ratingWinner1 = await getPlayerRating(formData.winner1);
@@ -174,16 +163,8 @@ const calculateElo2v2 = async (formData) => {
     console.error('Error adding 1v1 match:', error);
     throw error;
   }
-
-
-
-
-
-
   return;
 }
-
-
 
 router.post('/', async (req, res) =>{
   const formData = req.body;
