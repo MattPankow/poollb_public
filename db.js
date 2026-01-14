@@ -3,8 +3,6 @@
 //Ok so the models players.js file is creating it
 //not sure how it gets the name players when it isn't typed there
 
-
-
 const mongoose = require("mongoose");
 const Player = require('./models/players'); // Adjust the path to your Player model
 const fs = require('fs');
@@ -30,7 +28,7 @@ async function readPlayerNamesFromFile() {
 
 const initializeDatabase = async () => {
   try {
-    console.log('Before connecting to mongodb');
+    console.log('Connecting to MongoDB');
 
     const url = process.env.MONGODB_URI;
     await mongoose.connect(url, {
@@ -38,22 +36,16 @@ const initializeDatabase = async () => {
       useUnifiedTopology: true,
     });
 
-
     const db = mongoose.connection.db;
     const collection = db.collection('players');
     const collInfo = await db.listCollections({ name: 'players' }).next();
 
     await collection.createIndex({ name: 1 }, { unique: true });
-
-
     
     const playerNames = await readPlayerNamesFromFile();
     //console.log('Names Array:', playerNames);
 
-
     const playersData = playerNames.map(name => ({ name, rating: 1000 }));
-
-
 
     // Use bulk insertion for efficiency
     const bulk = collection.initializeUnorderedBulkOp();
@@ -73,17 +65,9 @@ const initializeDatabase = async () => {
         throw error;
       }
     }
-
-
-
-
-
-
   } catch (error) {
     console.error('Error connecting to mongodb:', error);
   }
 };
-
-
 
 module.exports = initializeDatabase;
