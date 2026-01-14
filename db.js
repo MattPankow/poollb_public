@@ -6,12 +6,14 @@
 const mongoose = require("mongoose");
 const Player = require('./models/players'); // Adjust the path to your Player model
 const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 
 async function readPlayerNamesFromFile() {
   return new Promise((resolve, reject) => {
-    fs.readFile('./public/players.csv', 'utf8', (error, data) => {
+    const filePath = path.join(__dirname, 'players.csv');
+    fs.readFile(filePath, 'utf8', (error, data) => {
       if (error) {
         console.error('Error reading CSV file:', error);
         reject(error);
