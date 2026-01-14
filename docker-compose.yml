@@ -1,0 +1,22 @@
+services:
+  poollb:
+    build: .
+    ports:
+      - "8888:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+  db:
+    image: mongo:8.2.3
+    restart: always
+    healthcheck:
+      test: "mongosh --quiet 127.0.0.1/test --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    environment:
+        MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+        MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+        MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
