@@ -9,6 +9,12 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
+const {
+  MONGO_HOSTNAME,
+  MONGO_INITDB_ROOT_USERNAME,
+  MONGO_INITDB_ROOT_PASSWORD,
+  MONGO_INITDB_DATABASE,
+} = process.env;
 
 async function readPlayerNamesFromFile() {
   return new Promise((resolve, reject) => {
@@ -32,8 +38,17 @@ const initializeDatabase = async () => {
   try {
     console.log('Connecting to MongoDB');
 
-    const url = process.env.MONGODB_URI;
-    await mongoose.connect(url, {
+    const url = new URL(`mongodb://${MONGO_HOSTNAME}:27017/${MONGO_INITDB_DATABASE}`);
+    url.username = MONGO_INITDB_ROOT_USERNAME;
+    url.password = MONGO_INITDB_ROOT_PASSWORD;
+    url.search = new URLSearchParams({
+      retryWrites: 'true',
+      w: 'majority',
+      authSource: 'admin',
+    }).toString();
+    const mongoUri = url.toString();
+
+    await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
