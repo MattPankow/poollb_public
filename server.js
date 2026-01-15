@@ -6,9 +6,7 @@ const initializeDatabase = require('./db'); // Adjust the path
 const favicon = require('serve-favicon');
 const path = require('path');
 
-
 initializeDatabase();
-
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -24,9 +22,6 @@ const patchNotesRouter = require('./routes/patchNotes');
 const superlativesRouter = require('./routes/superlatives');
 const headRouter = require ('./routes/headToHead');
 
-
-
-
 app.use('/profile', profileRouter);
 app.use('/leaderboard', leaderboardRouter);
 app.use('/delete', deleteRouter);
@@ -39,8 +34,6 @@ app.use('/headToHead', headRouter);
 app.use('/', homeRouter);
 
 app.use(favicon(path.join(__dirname, 'public/images', 'favicon.ico')))
-
-
 
 server.listen(3000, () => {
   console.log('Server is running on port 3000');
