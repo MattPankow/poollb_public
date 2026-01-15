@@ -1,7 +1,6 @@
 {
   "name": "poollb",
   "version": "1.0.1",
-  "type": "module",
   "dependencies": {
     "body-parser": "^1.20.2",
     "dotenv": "^16.4.7",
