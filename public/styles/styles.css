@@ -1,38 +1,36 @@
 html, body {
-  margin:0;
-  
-  padding:0;
+  margin: 0;
+  padding: 0;
 }
+
 h2 {
   display: flex;
   font-size: 50px;
   margin-bottom: 20px;
 }
 
-h1{
+h1 {
   font-size: 20px;
   text-align: center;
   margin-top: 50px;
   margin-bottom: 0px;
 }
 
-.ones, .twos{
-
+.ones, .twos {
   display:flex;
   padding-top: 1rem;
   padding-bottom: 1rem;
   justify-content: center;
-
 }
 
-.dropdown{
+.dropdown {
   height: 2rem;
   width: 8rem;
   margin-left: 1rem;
   margin-right: 1rem;
 }
 
-.dashed{
+.dashed {
   padding: 0px;
   border: 2px dashed black;
 }
@@ -46,14 +44,6 @@ h1{
   border-radius: 2px;
   cursor: pointer;
 }
-
-
-
-
-
-
-
-
 
 .popup {
   display: none; /* Initially hide the popup */
@@ -83,7 +73,7 @@ h1{
   cursor: pointer;
 }
 
-.poolballs-image{
+.poolballs-image {
   text-align: center;
   width: 100%;
   margin-top: 25px;

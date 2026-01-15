@@ -1,75 +1,67 @@
 html, body {
-    margin:0;
-    
-    padding:0;
-  }
+  margin: 0;
+  padding: 0;
+}
 
 .top {
-    margin-top: 3rem;
-    
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-    border-bottom: 3px solid black;
+  margin-top: 3rem;
 
-    font-size: 6vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  border-bottom: 3px solid black;
 
-    @media (max-width: 840px) {
-        font-size: 8vw; /* increase font size as browser width decreases */
-    }
+  font-size: 6vw;
+
+  @media (max-width: 840px) {
+    font-size: 8vw; /* increase font size as browser width decreases */
+  }
 }
 
-.boxes{
-    display: flex;
-    justify-content: space-around; /* Change this line */
-    flex-wrap: wrap; /* Add this line */
-
+.boxes {
+  display: flex;
+  justify-content: space-around; /* Change this line */
+  flex-wrap: wrap; /* Add this line */
 }
 
-.box{
-    color: black;
-    padding-right: 0px;
-    border-bottom: 3px solid black;
-    border-right: 3px solid black;
-    border-left: 3px solid black;
-    border-top: 3px solid black;
-    margin-bottom: 10px;
-    background-image: linear-gradient(160deg, rgb(211, 216, 187), rgb(194, 206, 122));
-
-
+.box {
+  color: black;
+  padding-right: 0px;
+  border-bottom: 3px solid black;
+  border-right: 3px solid black;
+  border-left: 3px solid black;
+  border-top: 3px solid black;
+  margin-bottom: 10px;
+  background-image: linear-gradient(160deg, rgb(211, 216, 187), rgb(194, 206, 122));
 }
 
-.title{
-    font-size: 2vw;
-    font-weight: 900;
-    text-align: center;
-    border-bottom: 3px solid black;
-    border-right: 10px;
-    
-    @media (max-width: 840px) {
-        font-size: 20px; /* increase font size as browser width decreases */
-    }
+.title {
+  font-size: 2vw;
+  font-weight: 900;
+  text-align: center;
+  border-bottom: 3px solid black;
+  border-right: 10px;
 
-    padding-left: 10px;
-    padding-right: 10px;
-    box-sizing: border-box; /* Include padding and border in the box size */
+  @media (max-width: 840px) {
+    font-size: 20px; /* increase font size as browser width decreases */
+  }
 
-
-
+  padding-left: 10px;
+  padding-right: 10px;
+  box-sizing: border-box; /* Include padding and border in the box size */
 }
 
-.players{
-
-    margin-top: 10px;
-    padding-right: 10px;
-    font-size: 18px;
-    @media (max-width: 840px) {
-        font-size: 12px; /* increase font size as browser width decreases */
-    }
-
+.players {
+  margin-top: 10px;
+  padding-right: 10px;
+  font-size: 18px;
+  @media (max-width: 840px) {
+    font-size: 12px; /* increase font size as browser width decreases */
+  }
 }
 
-.rank{
-    color: black;
+.rank {
+  color: black;
 }
+

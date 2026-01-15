@@ -1,8 +1,8 @@
 html, body {
-  margin:0;
-  
-  padding:0;
+  margin: 0;
+  padding: 0;
 }
+
 h1 {
   font-size: 30px;
   margin-top: 70px;
@@ -17,13 +17,13 @@ h1.matchHistory {
   font-size: 25px;
 }
 
-.row2{
+.row2 {
   display: flex;
   border-bottom: 3px solid black;
 
 }
 
-.flex-item{
+.flex-item {
   box-sizing: border-box;
   flex: 1;
   font-size: 20px;
@@ -32,23 +32,19 @@ h1.matchHistory {
   padding-bottom: 15px;
   margin-bottom: 0;
   margin-left: 10px;
-
-
-
 }
 
 .flex-item.rating {
   border-right: 3px solid black;
 }
 
-
-.match-box{
+.match-box {
   border-bottom: 3px solid black;
   font-size: 15px;
   background-color: rgb(247, 163, 163);
 }
 
-.top, .bottom{
+.top, .bottom {
   display: flex;
 }
 
@@ -61,7 +57,7 @@ h1.matchHistory {
   flex: 1;
 }
 
-.match-item.left.top, .match-item.right.top{
+.match-item.left.top, .match-item.right.top {
   margin-bottom: 2px;
 }
 

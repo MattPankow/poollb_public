@@ -1,47 +1,47 @@
 html, body {
-    margin:0;
-    
-    padding:0;
-  }
+  margin: 0;
+  padding: 0;
+}
 
 .top {
-    margin-top: 3rem;
-    
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-    border-bottom: 3px solid black;
+  margin-top: 3rem;
 
-    font-size: 6vw;
-    margin-bottom: 2vw;
-    @media (max-width: 840px) {
-        font-size: 8vw; /* increase font size as browser width decreases */
-    }
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  border-bottom: 3px solid black;
+
+  font-size: 6vw;
+  margin-bottom: 2vw;
+  @media (max-width: 840px) {
+    font-size: 8vw; /* increase font size as browser width decreases */
+  }
 }
 
-h4{
-    padding-left: 2vw;
-    font-size: 2.5vw;
-    margin-top: 0px;
-    text-align: center;
-    padding-bottom: 2vw;
-    border-bottom: 3px solid black;
+h4 {
+  padding-left: 2vw;
+  font-size: 2.5vw;
+  margin-top: 0px;
+  text-align: center;
+  padding-bottom: 2vw;
+  border-bottom: 3px solid black;
 
 }
 
-h3{
-    padding-left: 2vw;
-    padding-right: 20px;
-    margin-bottom: .8vw;
-    font-size: 2.2vw;
+h3 {
+  padding-left: 2vw;
+  padding-right: 20px;
+  margin-bottom: .8vw;
+  font-size: 2.2vw;
 }
 
-ul{
-    padding-right:20px;
-    padding-bottom:20px;
-    font-size: 1.7vw;
-    @media (max-width: 840px) {
-        font-size: 2.5vw; /* increase font size as browser width decreases */
-    }
+ul {
+  padding-right:20px;
+  padding-bottom:20px;
+  font-size: 1.7vw;
+  @media (max-width: 840px) {
+    font-size: 2.5vw; /* increase font size as browser width decreases */
+  }
 }
+

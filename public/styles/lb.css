@@ -1,9 +1,9 @@
 html, body {
-  margin:0;
-  padding:0;
+  margin: 0;
+  padding: 0;
 }
 
-h3{
+h3 {
   font-size: 20px;
   text-align: center;
   margin-top: 5px;
@@ -34,7 +34,6 @@ h3{
 
 }
 
-
 .ratings {
   display: flex;
   align-items: center;  
@@ -46,16 +45,12 @@ h3{
   text-align: right;
 }
 
-
 .names {
   font-weight: 900;
   margin-left: 30vw;
   text-align: left; /* Align player names to the right within the flex item */
   flex: 1;
 }
-
-
-
 
 h1 {
   font-size: 50px;
@@ -64,14 +59,11 @@ h1 {
   width: 100%;
   text-align: center;
   border-bottom: 2px solid black;
-
 }
 
-.categories{
+.categories {
   font-size: 20px;
 }
-
-
 
 .text {
   color: black;
@@ -85,18 +77,11 @@ h1 {
   font-weight: 900;
 }
 
-
-
-
-
-
-
 #previous-years {
   display: flex;
   flex-direction: column;
   justify-content: center;
   border-bottom: 2px solid black;
-
 }
 
 .year {    
@@ -117,24 +102,19 @@ h1 {
   font-weight: 700;
 
   @media (max-width: 840px) {
-      font-size: 2.2vw; /* increase font size as browser width decreases */
-      margin: 5px 20vw;
-
+    font-size: 2.2vw; /* increase font size as browser width decreases */
+    margin: 5px 20vw;
   }
-
 }
 
 .year:hover {
   background: linear-gradient(to left, rgb(21, 116, 21), rgb(205, 246, 205));
   /*color: rgb(219, 205, 205);*/
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
-
   /*font-weight: 900;*/
-
 }
 
-
-.a{
+.a {
   color: black;
-
 }
+

@@ -1,51 +1,47 @@
 html, body {
-    margin:0;
-    
-    padding:0;
-  }
+  margin: 0;
+  padding: 0;
+}
 
 .top {
-    margin-top: 3rem;
+  margin-top: 3rem;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-    border-bottom: 3px solid black;
-    margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  border-bottom: 3px solid black;
+  margin-bottom: 10px;
 
-    font-size: 6vw;
+  font-size: 6vw;
 
-    @media (max-width: 840px) {
-        font-size: 8vw; /* increase font size as browser width decreases */
-    }
+  @media (max-width: 840px) {
+    font-size: 8vw; /* increase font size as browser width decreases */
+  }
 }
+
 .note {
+  display: flex;
+  padding-left: 5vw;
 
-    display: flex;
-    padding-left: 5vw;
-
-    border-bottom: 2px solid black;
-    flex-direction: column;
-
-
+  border-bottom: 2px solid black;
+  flex-direction: column;
 }
 
 .date {
-    font-weight: 900;
-    margin-top: 0;
-    margin-bottom: 0px;
-    font-size: 20px;
-
+  font-weight: 900;
+  margin-top: 0;
+  margin-bottom: 0px;
+  font-size: 20px;
 }
 
-
 .content {
-    margin-top: 0;
-    margin-bottom: 0px;
+  margin-top: 0;
+  margin-bottom: 0px;
 }
 
 .list {
-    margin: 0px;
-    margin-bottom: 10px
+  margin: 0px;
+  margin-bottom: 10px
 }
+
