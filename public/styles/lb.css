@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
@@ -10,7 +11,6 @@ h3 {
   margin-bottom: 0px;
   padding-bottom: 5px;
   border-bottom: 5px solid black;
-
 }
 
 .lb {
@@ -19,7 +19,6 @@ h3 {
   align-items: center; /* Align items (rows) horizontally in the center */
   border-bottom: 2px solid black;
 }
-
 
 .rows {
   display: flex;
@@ -31,12 +30,11 @@ h3 {
 .rows {
   display: flex;
   border-bottom: 2px solid black;
-
 }
 
 .ratings {
   display: flex;
-  align-items: center;  
+  align-items: center;
   flex: 1;
   font-weight: 600;
 }
@@ -84,14 +82,16 @@ h1 {
   border-bottom: 2px solid black;
 }
 
-.year {    
+.year {
   display: inline-block;
   margin: 10px 40vw;
   padding: 5px 20px;
   border: 4px solid darkgray;
   border-radius: 10px;
 
-  transition: background 0.3s, color 0.3s;
+  transition:
+    background 0.3s,
+    color 0.3s;
   background: linear-gradient(to left, rgb(14, 81, 14), rgb(194, 225, 194));
 
   text-align: center;
@@ -110,11 +110,12 @@ h1 {
 .year:hover {
   background: linear-gradient(to left, rgb(21, 116, 21), rgb(205, 246, 205));
   /*color: rgb(219, 205, 205);*/
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  box-shadow:
+    0 8px 16px 0 rgba(0, 0, 0, 0.24),
+    0 17px 50px 0 rgba(0, 0, 0, 0.19);
   /*font-weight: 900;*/
 }
 
 .a {
   color: black;
 }
-

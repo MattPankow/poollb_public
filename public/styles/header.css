@@ -1,4 +1,4 @@
-.header{
+.header {
   position: fixed;
   top: 0;
   left: 0;
@@ -14,7 +14,6 @@
   font-size: 1.5rem;
   margin: 0px;
   background-color: darkgreen;
-
 }
 
 body::before {
@@ -28,7 +27,7 @@ body::before {
   background: rgb(197, 202, 206);
 }
 
-.item{
+.item {
   margin: 0 10px;
   color: white;
   text-decoration: none;
@@ -40,4 +39,3 @@ body::before {
   color: lightgray;
   /*font-weight: 900;*/
 }
-

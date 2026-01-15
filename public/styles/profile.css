@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
@@ -20,7 +21,6 @@ h1.matchHistory {
 .row2 {
   display: flex;
   border-bottom: 3px solid black;
-
 }
 
 .flex-item {
@@ -44,11 +44,14 @@ h1.matchHistory {
   background-color: rgb(247, 163, 163);
 }
 
-.top, .bottom {
+.top,
+.bottom {
   display: flex;
 }
 
-.match-item.left, .winners, .losers {
+.match-item.left,
+.winners,
+.losers {
   flex: 2;
   margin-left: 10px;
 }
@@ -57,7 +60,8 @@ h1.matchHistory {
   flex: 1;
 }
 
-.match-item.left.top, .match-item.right.top {
+.match-item.left.top,
+.match-item.right.top {
   margin-bottom: 2px;
 }
 
@@ -70,11 +74,11 @@ h1.matchHistory {
   margin-bottom: 0px;
 }
 
-.match-item.left.top.bottom, .match-item.right.bottom.bottom {
+.match-item.left.top.bottom,
+.match-item.right.bottom.bottom {
   margin-top: 5px;
 }
 
 #helplol {
   margin-bottom: 10px;
 }
-

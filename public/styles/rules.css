@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
@@ -26,22 +27,20 @@ h4 {
   text-align: center;
   padding-bottom: 2vw;
   border-bottom: 3px solid black;
-
 }
 
 h3 {
   padding-left: 2vw;
   padding-right: 20px;
-  margin-bottom: .8vw;
+  margin-bottom: 0.8vw;
   font-size: 2.2vw;
 }
 
 ul {
-  padding-right:20px;
-  padding-bottom:20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
   font-size: 1.7vw;
   @media (max-width: 840px) {
     font-size: 2.5vw; /* increase font size as browser width decreases */
   }
 }
-

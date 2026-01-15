@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
@@ -9,14 +10,16 @@ html, body {
   justify-content: center;
 }
 
-.nav-button {  
+.nav-button {
   display: inline-block;
   margin: 10px 25vw;
   padding: 10px 20px;
   border: 4px solid darkgray;
   border-radius: 10px;
 
-  transition: background 0.3s, color 0.3s;
+  transition:
+    background 0.3s,
+    color 0.3s;
   background: linear-gradient(to left, rgb(14, 81, 14), rgb(194, 225, 194));
 
   text-align: center;
@@ -35,7 +38,9 @@ html, body {
 .nav-button:hover {
   background: linear-gradient(to left, rgb(21, 116, 21), rgb(205, 246, 205));
   /*color: rgb(219, 205, 205);*/
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  box-shadow:
+    0 8px 16px 0 rgba(0, 0, 0, 0.24),
+    0 17px 50px 0 rgba(0, 0, 0, 0.19);
   /*font-weight: 900;*/
 }
 
@@ -59,6 +64,5 @@ html, body {
 }
 
 .adphi {
-  color:rgb(9, 64, 9);
+  color: rgb(9, 64, 9);
 }
-

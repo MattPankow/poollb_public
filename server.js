@@ -16,19 +16,21 @@ import headRouter from "./routes/headToHead.js";
 const app = express();
 const server = { Server }.Server(app);
 initializeDatabase();
-app.set('view engine', 'ejs');
-app.use(express.static('public'));
+app.set("view engine", "ejs");
+app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/profile', profileRouter);
-app.use('/leaderboard', leaderboardRouter);
-app.use('/delete', deleteRouter);
-app.use('/submitGame', submitGameRouter);
-app.use('/rules', rulesRouter);
-app.use('/patchNotes', patchNotesRouter);
-app.use('/superlatives', superlativesRouter);
-app.use('/headToHead', headRouter);
-app.use('/', homeRouter);
-app.use(favicon(path.join(import.meta.dirname, 'public/images', 'favicon.ico')));
+app.use("/profile", profileRouter);
+app.use("/leaderboard", leaderboardRouter);
+app.use("/delete", deleteRouter);
+app.use("/submitGame", submitGameRouter);
+app.use("/rules", rulesRouter);
+app.use("/patchNotes", patchNotesRouter);
+app.use("/superlatives", superlativesRouter);
+app.use("/headToHead", headRouter);
+app.use("/", homeRouter);
+app.use(
+  favicon(path.join(import.meta.dirname, "public/images", "favicon.ico")),
+);
 server.listen(3000, () => {
-    console.log('Server is running on port 3000');
+  console.log("Server is running on port 3000");
 });
