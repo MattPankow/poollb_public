@@ -3,7 +3,6 @@ const router = express.Router();
 const Match = require('../models/matches');
 const Player = require('../models/players');
 
-
 // DELETE route to remove a game by its _id
 router.delete('/:gameId', async (req, res) => {
   const gameId = req.params.gameId;
@@ -22,7 +21,7 @@ router.delete('/:gameId', async (req, res) => {
 
 
 
-        // Calculate the reversed ratingChange for winners and losers
+    // Calculate the reversed ratingChange for winners and losers
     const reversedRatingChange = -removedGame.ratingChange;
 
     // Update the player ratings
