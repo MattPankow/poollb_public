@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-
+import mongoose from "mongoose";
 
 const matchSchema = new mongoose.Schema({
   Winners: [String],
@@ -11,10 +10,8 @@ const matchSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
   season: {
     year: Number,
-    semester: Number, // 1 for sprnig, 2 for fall
+    semester: Number, // 1 for Spring, 2 for Fall
   },
-
-  //timestamp: { type: Date, default: new Date().toLocaleString("en-US", { timeZone: "America/Chicago" }) }
 });
 
 const Match = mongoose.model('Match', matchSchema);

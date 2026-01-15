@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const playerSchema = new mongoose.Schema({
   name: String,
-  rating: Number
+  rating: Number,
 });
 
 const Player = mongoose.model('Player', playerSchema);
