@@ -1,15 +1,17 @@
 services:
   poollb:
     build: .
+    restart: unless-stopped
     ports:
       - "8888:3000"
     depends_on:
-      db:
+      mongo:
         condition: service_healthy
         restart: true
-  db:
+
+  mongo:
     image: mongo:8.2.3
-    restart: always
+    restart: unless-stopped
     healthcheck:
       test: "mongosh --quiet 127.0.0.1/test --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'"
       interval: 10s
@@ -20,3 +22,15 @@ services:
         MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
         MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
         MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+
+  mongo-express:
+    image: mongo-express:1.0.2-20-alpine3.19
+    restart: unless-stopped
+    ports:
+      - "8989:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL:
+        mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGO_HOSTNAME}:27017/
+      ME_CONFIG_BASICAUTH_ENABLED: true
+      ME_CONFIG_BASICAUTH_USERNAME: ${ME_CONFIG_BASICAUTH_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD}
