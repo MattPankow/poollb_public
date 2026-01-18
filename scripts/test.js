@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
 import Match from "../models/matches.js";
+
 async function findTopRivalries() {
   try {
     const pipeline = [
@@ -27,10 +27,12 @@ async function findTopRivalries() {
       },
     ];
     const result = await Match.aggregate(pipeline);
+
     // Extract player names and sort by count
     const topPlayers = result
       .map((player) => ({ name: player._id, count: player.count }))
       .sort((a, b) => b.count - a.count);
+
     // Find the top 3 rivalries
     const topRivalries = [];
     for (let i = 0; i < topPlayers.length - 1; i++) {
@@ -41,14 +43,18 @@ async function findTopRivalries() {
         });
       }
     }
+
     // Sort rivalries by games count
     const sortedRivalries = topRivalries
       .sort((a, b) => b.games - a.games)
       .slice(0, 3);
+
     return sortedRivalries;
   } catch (error) {
     console.error("Error:", error);
     throw error;
   }
 }
+
 export default findTopRivalries;
+

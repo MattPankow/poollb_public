@@ -2,6 +2,7 @@ async function findTopRivalries() {
   try {
     const matches = await Match.find();
     const playerPairs = {}; // To store the count of games played between pairs of players
+
     for (const match of matches) {
       for (const winner of match.Winners) {
         for (const loser of match.Losers) {
@@ -16,6 +17,7 @@ async function findTopRivalries() {
         }
       }
     }
+
     const topRivalries = Object.keys(playerPairs)
       .map((key) => {
         const [player1, player2] = key.split(",");
@@ -23,10 +25,12 @@ async function findTopRivalries() {
       })
       .sort((a, b) => b.games - a.games)
       .slice(0, 3);
+
     return topRivalries;
   } catch (error) {
     console.error("Error:", error);
     throw error;
   }
 }
+
 export default findTopRivalries;
