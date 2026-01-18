@@ -1,11 +1,13 @@
 import express from "express";
-import Player from "../models/players.js";
 import Match from "../models/matches.js";
+
 const router = express.Router();
+
 async function findTopRivalries() {
   try {
     const matches = await Match.find();
     const playerPairs = new Map(); // To store the count of games played between pairs of players
+
     for (const match of matches) {
       for (const winner of match.Winners) {
         for (const loser of match.Losers) {
@@ -25,6 +27,7 @@ async function findTopRivalries() {
         }
       }
     }
+
     const sortedRivalries = [...playerPairs.entries()]
       .sort(
         (a, b) => b[1].totalGames - a[1].totalGames || b[1].wins - a[1].wins,
@@ -34,12 +37,14 @@ async function findTopRivalries() {
         const [players, stats] = entry;
         return { players: players.split(","), totalGames: stats.totalGames };
       });
+
     return sortedRivalries;
   } catch (error) {
     console.error("Error:", error);
     throw error;
   }
 }
+
 async function calculateWinsAndLosses(playerA, playerB) {
   try {
     const matches = await Match.find({
@@ -54,6 +59,7 @@ async function calculateWinsAndLosses(playerA, playerB) {
     });
     let winsA = 0;
     let winsB = 0;
+
     matches.forEach((match) => {
       if (match.Winners.includes(playerA)) {
         winsA++;
@@ -61,9 +67,11 @@ async function calculateWinsAndLosses(playerA, playerB) {
         winsB++;
       }
     });
+
     // Determine which player has more wins and list them first
     const [firstPlayer, secondPlayer] =
       winsA > winsB ? [playerA, playerB] : [playerB, playerA];
+
     return {
       players: [firstPlayer, secondPlayer],
       Wins: winsA > winsB ? winsA : winsB,
@@ -74,6 +82,7 @@ async function calculateWinsAndLosses(playerA, playerB) {
     throw error;
   }
 }
+
 async function findTopPlayersWithMostGamesPlayed() {
   try {
     const result = await Match.aggregate([
@@ -98,12 +107,14 @@ async function findTopPlayersWithMostGamesPlayed() {
       // Limit to the top 3 players
       { $limit: 10 },
     ]);
+
     // The 'result' variable now contains the top 3 players with the most games played
     return result;
   } catch (error) {
     console.error("Error:", error);
   }
 }
+
 async function findTopRatingChanges() {
   try {
     const result = await Match.aggregate([
@@ -123,6 +134,7 @@ async function findTopRatingChanges() {
         },
       },
     ]);
+
     // The 'result' variable now contains the top 3 matches with Winners, Losers, and ratingChange fields
     return result;
   } catch (error) {
@@ -130,22 +142,22 @@ async function findTopRatingChanges() {
     throw error;
   }
 }
-router.get("/", async (req, res) => {
+
+router.get("/", async (_, res) => {
   try {
     const rivalries2 = await findTopRivalries(); // Call your original function to get the rivalries
-    console.log(rivalries2);
     const rivalries = [];
+
     for (const rivalry of rivalries2) {
-      const { players, games } = rivalry;
+      const { players } = rivalry;
       const [playerA, playerB] = players;
       const winsAndLosses = await calculateWinsAndLosses(playerA, playerB);
       rivalries.push(winsAndLosses);
     }
+
     const mostMatches = await findTopPlayersWithMostGamesPlayed();
     const topUpsets = await findTopRatingChanges();
-    console.log(rivalries);
-    console.log(mostMatches);
-    console.log(topUpsets);
+
     res.render("superlatives", { mostMatches, topUpsets, rivalries });
   } catch (error) {
     console.error("Error:", error);
@@ -153,4 +165,6 @@ router.get("/", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
 export default router;
+
