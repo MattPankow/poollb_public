@@ -1,6 +1,8 @@
 import express from "express";
 import Match from "../models/matches.js";
+
 const router = express.Router();
+
 const calculateRankings = async (year, semester) => {
   try {
     const matches = await Match.find({
@@ -8,6 +10,7 @@ const calculateRankings = async (year, semester) => {
       "season.semester": semester,
     });
     const playerRatings = new Map();
+
     matches.forEach((match) => {
       match.Winners.forEach((winner, index) => {
         const winnerRating = playerRatings.get(winner) || 1000;
@@ -19,18 +22,20 @@ const calculateRankings = async (year, semester) => {
         );
       });
     });
+
     const playerArray = Array.from(playerRatings, ([name, rating]) => ({
       name,
       rating,
     }));
     playerArray.sort((a, b) => b.rating - a.rating);
-    //console.log(playerArray);
+
     return playerArray;
   } catch (error) {
     console.error("Error calculating rankings:", error);
     throw error;
   }
 };
+
 const seasons = [
   //{ year: 2023, semester: 2 },
   //{ year: 2024, semester: 1 },
@@ -41,12 +46,14 @@ const seasons = [
   { year: 2026, semester: 2 },
   // Add more seasons as needed
 ];
+
 const filterCurrentSeason = (seasons, currentYear, currentSemester) => {
   return seasons.filter(
     (season) =>
       !(season.year == currentYear && season.semester == currentSemester),
   );
 };
+
 router.get("/", async (req, res) => {
   try {
     // Get the year and semester from req.query or use default values
@@ -54,10 +61,9 @@ router.get("/", async (req, res) => {
     const semester = req.query.semester || 2;
     const sortedPlayers = await calculateRankings(year, semester);
     const season = semester == 1 ? "Spring" : "Fall";
-    console.log(seasons);
+
     const filteredSeasons = filterCurrentSeason(seasons, year, semester);
-    console.log(filteredSeasons);
-    console.log("\n\n\n");
+
     res.render("leaderboard", {
       players: sortedPlayers,
       year,
@@ -69,4 +75,6 @@ router.get("/", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
 export default router;
+
