@@ -13,9 +13,12 @@ import rulesRouter from "./routes/rules.js";
 import patchNotesRouter from "./routes/patchNotes.js";
 import superlativesRouter from "./routes/superlatives.js";
 import headRouter from "./routes/headToHead.js";
+
 const app = express();
 const server = { Server }.Server(app);
+
 initializeDatabase();
+
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -28,9 +31,12 @@ app.use("/patchNotes", patchNotesRouter);
 app.use("/superlatives", superlativesRouter);
 app.use("/headToHead", headRouter);
 app.use("/", homeRouter);
+
 app.use(
   favicon(path.join(import.meta.dirname, "public/images", "favicon.ico")),
 );
+
 server.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
+
