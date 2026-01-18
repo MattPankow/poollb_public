@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import Player from "../models/players.js";
 import dotenv from "dotenv";
-console.log("Before connecting to mongodb");
 dotenv.config();
 console.log("Before connecting to mongodb");
 mongoose.connect(url, {
