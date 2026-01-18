@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const matchSchema = new mongoose.Schema({
   Winners: [String],
   WinnerElos: [Number],
@@ -12,5 +13,8 @@ const matchSchema = new mongoose.Schema({
     semester: Number, // 1 for Spring, 2 for Fall
   },
 });
+
 const Match = mongoose.model("Match", matchSchema);
+
 export default Match;
+
