@@ -57,8 +57,8 @@ const filterCurrentSeason = (seasons, currentYear, currentSemester) => {
 router.get("/", async (req, res) => {
   try {
     // Get the year and semester from req.query or use default values
-    const year = req.query.year || 2025;
-    const semester = req.query.semester || 2;
+    const year = req.query.year || 2026;
+    const semester = req.query.semester || 1;
     const sortedPlayers = await calculateRankings(year, semester);
     const season = semester == 1 ? "Spring" : "Fall";
 
