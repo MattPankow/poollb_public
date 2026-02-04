@@ -136,7 +136,7 @@ const calculateElo2v2 = async (formData) => {
       LoserElos: [ratingLoser1, ratingLoser2],
       ratingChange: eloChange,
       mode: "2v2",
-      season: { year: 2025, semester: 2 },
+      season: { year: 2026, semester: 1 },
     });
 
     // Save the match to the database
