@@ -16,3 +16,16 @@ export function getSemester() {
   return now.getMonth() < 6 ? 1 : 2;
 }
 
+/**
+ * @typedef {Object} Season
+ * @property {number} year
+ * @property [number] semester
+ */
+
+/**
+ * Returns an object representing the current season.
+ * @returns {Season} The current season.
+ */
+export function getSeason() {
+  return { year: getYear(), semester: getSemester() };
+}
