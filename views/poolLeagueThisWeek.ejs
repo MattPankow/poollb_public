@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pool League - This Week</title>
+  <link rel="stylesheet" href="/styles/header.css">
+  <link rel="stylesheet" href="/styles/poolLeague.css">
+</head>
+<body>
+  <h2>
+    <%- include('templates/header.ejs'); %>
+  </h2>
+
+  <h1>Pool League - <%= seasonLabel %></h1>
+
+  <div class="pool-tabs">
+    <a href="/poolLeague/this-week" class="pool-tab active"><%= isPlayoffsView ? 'Playoffs' : 'This Week' %></a>
+    <a href="/poolLeague/history" class="pool-tab">Match History</a>
+    <a href="/poolLeague/standings" class="pool-tab">Standings / Rankings</a>
+  </div>
+
+  <% if (success) { %>
+    <p class="flash success"><%= success %></p>
+  <% } %>
+
+  <% if (error) { %>
+    <p class="flash error"><%= error %></p>
+  <% } %>
+
+  <% if (teams.length === 0) { %>
+    <p class="empty-state">No teams are registered yet. Add teams to teams.csv (see teams-sample.csv) and restart.</p>
+  <% } else { %>
+    <form method="GET" action="/poolLeague/this-week" class="controls">
+      <label for="teamId">Select your team:</label>
+      <select id="teamId" name="teamId" class="dropdown" onchange="this.form.submit()">
+        <% teams.forEach(team => { %>
+          <option value="<%= team._id %>" <%= String(team._id) === String(activeTeamId) ? 'selected' : '' %>><%= team.name %></option>
+        <% }); %>
+      </select>
+    </form>
+
+    <% if (!isPlayoffsView) { %>
+      <h3>Week <%= currentWeek %> (Regular Season)</h3>
+    <% } else { %>
+      <h3>Playoff Matches</h3>
+    <% } %>
+
+    <% if (matches.length === 0) { %>
+      <p class="empty-state">No matches available for this view yet.</p>
+    <% } %>
+
+    <% matches.forEach(match => { %>
+      <div class="match-card">
+        <div class="match-top">
+          <p><strong>Opponent:</strong> <%= match.opponent %></p>
+          <p><strong>Status:</strong> <%= match.statusLabel %></p>
+          <% if (match.phase === 'PLAYOFFS') { %>
+            <p><strong>Series:</strong> <%= match.playoffRound %> - Game <%= match.gameNumber %></p>
+          <% } %>
+        </div>
+
+        <div class="match-meta">
+          <p><strong>Time:</strong> <%= match.scheduledAt ? new Date(match.scheduledAt).toLocaleString() : 'TBD' %></p>
+          <p><strong>Location:</strong> <%= match.location || 'TBD' %></p>
+        </div>
+
+        <% if (match.statusLabel !== 'Complete') { %>
+          <form method="POST" action="/poolLeague/match/<%= match.id %>/schedule" class="inline-form">
+            <input type="hidden" name="teamId" value="<%= activeTeamId %>">
+            <input type="datetime-local" name="scheduledAt" class="input">
+            <input type="text" name="location" class="input" placeholder="Location (optional)">
+            <button type="submit" class="small-button">Save Time/Location</button>
+          </form>
+
+          <form method="POST" action="/poolLeague/match/<%= match.id %>/score" class="inline-form">
+            <input type="hidden" name="teamId" value="<%= activeTeamId %>">
+            <input type="number" name="teamAScore" class="input score" placeholder="<%= match.teamAName %>" required min="0">
+            <input type="number" name="teamBScore" class="input score" placeholder="<%= match.teamBName %>" required min="0">
+            <button type="submit" class="small-button">Submit Score</button>
+          </form>
+        <% } else { %>
+          <p class="final-score"><strong>Final:</strong> <%= match.teamName %> <%= match.teamScore %> - <%= match.opponentScore %> <%= match.opponent %></p>
+        <% } %>
+      </div>
+    <% }); %>
+  <% } %>
+
+  <% if (season.status === 'SIGNUP') { %>
+    <form method="POST" action="/poolLeague/generate-schedule" class="admin-control">
+      <button type="submit" class="submit-button">Generate 4-Week Regular Season Schedule</button>
+    </form>
+  <% } %>
+</body>
+</html>

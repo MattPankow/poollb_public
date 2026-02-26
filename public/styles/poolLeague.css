@@ -1,0 +1,138 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  margin-top: 70px;
+  text-align: center;
+  border-bottom: 2px solid black;
+  padding-bottom: 10px;
+}
+
+h3 {
+  text-align: center;
+}
+
+.pool-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 16px 10px;
+}
+
+.pool-tab {
+  text-decoration: none;
+  color: rgb(6, 41, 17);
+  border: 2px solid darkgray;
+  border-radius: 8px;
+  padding: 8px 14px;
+  background: linear-gradient(to left, rgb(14, 81, 14), rgb(194, 225, 194));
+  font-weight: 700;
+}
+
+.pool-tab.active {
+  border-color: black;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 15px;
+}
+
+.controls.wide {
+  flex-wrap: wrap;
+}
+
+.dropdown,
+.input {
+  height: 2rem;
+  min-width: 180px;
+  padding: 0 8px;
+}
+
+.match-card,
+.history-row {
+  border: 2px solid black;
+  border-radius: 8px;
+  margin: 10px 20px;
+  padding: 12px;
+  background: white;
+}
+
+.history-list {
+  margin-bottom: 30px;
+}
+
+.match-top,
+.match-meta {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.small-button,
+.submit-button {
+  padding: 0.5rem 0.75rem;
+  background: #37af65;
+  border: 1px solid black;
+  cursor: pointer;
+}
+
+.admin-control {
+  display: flex;
+  justify-content: center;
+  margin: 25px;
+}
+
+.flash {
+  margin: 10px auto;
+  width: fit-content;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid black;
+}
+
+.flash.success {
+  background-color: #dcf5e4;
+}
+
+.flash.error {
+  background-color: #f9d8d8;
+}
+
+.empty-state,
+.subtitle {
+  text-align: center;
+  margin: 15px;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(420px, 90vw);
+  margin: 20px auto;
+}
+
+.score {
+  width: 100px;
+}
+
+.final-score {
+  margin-top: 8px;
+  font-weight: 700;
+}
