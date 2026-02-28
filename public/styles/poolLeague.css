@@ -37,6 +37,27 @@ h3 {
   border-color: black;
 }
 
+.match-view-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px;
+}
+
+.view-tab {
+  text-decoration: none;
+  color: rgb(6, 41, 17);
+  border: 2px solid darkgray;
+  border-radius: 8px;
+  padding: 6px 12px;
+  background: linear-gradient(to left, rgb(14, 81, 14), rgb(194, 225, 194));
+  font-weight: 600;
+}
+
+.view-tab.active {
+  border-color: black;
+}
+
 .controls {
   display: flex;
   justify-content: center;
@@ -56,13 +77,28 @@ h3 {
   padding: 0 8px;
 }
 
-.match-card,
+.match-card {
+  border: 2px solid black;
+  border-radius: 8px;
+  margin: 5px 20px;
+  padding: 6px;
+  background: white;
+}
+
+.match-card p {
+  margin: 2px 0;
+}
+
 .history-row {
   border: 2px solid black;
   border-radius: 8px;
-  margin: 10px 20px;
-  padding: 12px;
+  margin: 5px 20px;
+  padding: 2px;
   background: white;
+}
+
+.history-row p {
+  margin: 2px 0;
 }
 
 .history-list {
@@ -135,4 +171,38 @@ h3 {
 .final-score {
   margin-top: 8px;
   font-weight: 700;
+}
+.score-inputs {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.score-inputs label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.score-input {
+  width: 80px;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+fieldset {
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 4px;
+}
+
+legend {
+  padding: 0 5px;
+  font-weight: 600;
+  font-size: 14px;
 }

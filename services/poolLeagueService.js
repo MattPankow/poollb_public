@@ -11,7 +11,8 @@ const toId = (value) => String(value);
 const getCurrentSeasonDescriptor = () => {
   const now = new Date();
   const year = now.getFullYear();
-  const semester = now.getMonth() < 6 ? 1 : 2;
+  const month = now.getMonth();
+  const semester = month < 6 ? "Spring" : "Fall";
   return { year, semester };
 };
 
@@ -33,8 +34,8 @@ const getOrCreateCurrentSeason = async () => {
 
 const getSeasonLabel = (season) => {
   if (!season) return "Unknown";
-  const semesterLabel = season.semester === 1 ? "Spring" : "Fall";
-  return `${semesterLabel} ${season.year}`;
+  if (season.seasonName) return season.seasonName;
+  return `${season.semester} ${season.year}`;
 };
 
 const createTeam = async (seasonId, playerAId, playerBId, requestedName) => {
@@ -70,7 +71,7 @@ const createTeam = async (seasonId, playerAId, playerBId, requestedName) => {
   }
 
   const playerNames = players.map((player) => player.name).sort();
-  const name = (requestedName || "").trim() || `${playerNames[0]} / ${playerNames[1]}`;
+  const name = (requestedName || "").trim() || `${playerNames[0]} | ${playerNames[1]}`;
 
   const existingName = await PoolLeagueTeam.findOne({ seasonId, name });
   if (existingName) {
@@ -90,30 +91,53 @@ const buildRoundPairings = (teams, totalRounds) => {
     throw new Error("An even number of teams is required to generate the schedule.");
   }
 
-  const rotation = [...teams];
   const rounds = [];
+  const usedPairings = new Set();
+
+  const getPairingKey = (teamAId, teamBId) => {
+    const ids = [toId(teamAId), toId(teamBId)].sort();
+    return `${ids[0]}|${ids[1]}`;
+  };
 
   for (let round = 1; round <= totalRounds; round += 1) {
     const pairings = [];
-    const midpoint = rotation.length / 2;
+    const availableTeams = [...teams];
 
-    for (let index = 0; index < midpoint; index += 1) {
-      const teamA = rotation[index];
-      const teamB = rotation[rotation.length - 1 - index];
+    while (availableTeams.length >= 2) {
+      const randomIndex = Math.floor(Math.random() * availableTeams.length);
+      const teamA = availableTeams.splice(randomIndex, 1)[0];
 
-      if (round % 2 === 0) {
-        pairings.push([teamB, teamA]);
-      } else {
+      let teamB = null;
+      let attempts = 0;
+      const maxAttempts = availableTeams.length;
+
+      while (attempts < maxAttempts && !teamB) {
+        const randomIndexB = Math.floor(Math.random() * availableTeams.length);
+        const candidate = availableTeams[randomIndexB];
+        const pairingKey = getPairingKey(teamA._id, candidate._id);
+
+        if (!usedPairings.has(pairingKey)) {
+          teamB = availableTeams.splice(randomIndexB, 1)[0];
+          usedPairings.add(pairingKey);
+        }
+        attempts += 1;
+      }
+
+      if (teamB) {
         pairings.push([teamA, teamB]);
+      } else if (availableTeams.length > 0) {
+        // Fallback: pair remaining team with first available if needed
+        const candidate = availableTeams[0];
+        const pairingKey = getPairingKey(teamA._id, candidate._id);
+        if (!usedPairings.has(pairingKey)) {
+          teamB = availableTeams.splice(0, 1)[0];
+          usedPairings.add(pairingKey);
+          pairings.push([teamA, teamB]);
+        }
       }
     }
 
     rounds.push({ round, pairings });
-
-    const fixedTeam = rotation[0];
-    const rest = rotation.slice(1);
-    rest.unshift(rest.pop());
-    rotation.splice(0, rotation.length, fixedTeam, ...rest);
   }
 
   return rounds;
@@ -293,12 +317,29 @@ const computeStandings = async (seasonId) => {
 };
 
 const isRegularSeasonComplete = async (seasonId) => {
-  const regularMatches = await PoolLeagueMatch.find({ seasonId, phase: "REGULAR" });
-  if (regularMatches.length === 0) {
+  const season = await PoolLeagueSeason.findById(seasonId);
+  if (!season) {
     return false;
   }
 
-  return regularMatches.every((match) => match.status === "COMPLETE");
+  // Get all teams to calculate rounds per week
+  const teams = await PoolLeagueTeam.find({ seasonId });
+  const totalMatchesPerRound = teams.length > 0 ? teams.length / 2 : 1;
+
+  // Count completed matches (rounds)
+  const completedMatches = await PoolLeagueMatch.countDocuments({
+    seasonId,
+    phase: "REGULAR",
+    status: "COMPLETE",
+  });
+
+  const completedRounds = totalMatchesPerRound > 0 ? Math.floor(completedMatches / totalMatchesPerRound) : 0;
+  const regularSeasonWeeks = season.regularWeeks || 4;
+  const regularSeasonRounds = regularSeasonWeeks * 2;
+
+  // Check if we've completed enough rounds to be past the final week
+  // (even if not all matches are complete, incomplete matches just don't count toward seeding)
+  return completedRounds >= regularSeasonRounds;
 };
 
 const createSeriesMatches = async ({
@@ -318,24 +359,19 @@ const createSeriesMatches = async ({
     return;
   }
 
-  const toInsert = [];
-  for (let gameNumber = 1; gameNumber <= bestOf; gameNumber += 1) {
-    toInsert.push({
-      seasonId,
-      phase: "PLAYOFFS",
-      playoffRound,
-      seriesKey,
-      bestOf,
-      gameNumber,
-      teamAId: teamA._id,
-      teamBId: teamB._id,
-      teamAName: teamA.name,
-      teamBName: teamB.name,
-      status: "TBD",
-    });
-  }
-
-  await PoolLeagueMatch.insertMany(toInsert);
+  await PoolLeagueMatch.create({
+    seasonId,
+    phase: "PLAYOFFS",
+    playoffRound,
+    seriesKey,
+    bestOf,
+    teamAId: teamA._id,
+    teamBId: teamB._id,
+    teamAName: teamA.name,
+    teamBName: teamB.name,
+    status: "TBD",
+    games: [],
+  });
 };
 
 const seedPlayoffs = async (seasonId) => {
@@ -402,43 +438,30 @@ const seedPlayoffs = async (seasonId) => {
 };
 
 const getSeriesState = async (seasonId, seriesKey) => {
-  const seriesMatches = await PoolLeagueMatch.find({
+  const match = await PoolLeagueMatch.findOne({
     seasonId,
     phase: "PLAYOFFS",
     seriesKey,
-  }).sort({ gameNumber: 1 });
+  });
 
-  if (seriesMatches.length === 0) {
+  if (!match) {
     return null;
   }
 
-  let teamAWins = 0;
-  let teamBWins = 0;
-
-  seriesMatches.forEach((match) => {
-    if (match.status !== "COMPLETE") {
-      return;
-    }
-
-    if (toId(match.winnerTeamId) === toId(match.teamAId)) {
-      teamAWins += 1;
-    } else if (toId(match.winnerTeamId) === toId(match.teamBId)) {
-      teamBWins += 1;
-    }
-  });
-
-  const bestOf = seriesMatches[0].bestOf;
+  const teamAWins = match.teamAScore || 0;
+  const teamBWins = match.teamBScore || 0;
+  const bestOf = match.bestOf;
   const neededWins = Math.floor(bestOf / 2) + 1;
 
   let winnerTeamId = null;
   if (teamAWins >= neededWins) {
-    winnerTeamId = seriesMatches[0].teamAId;
+    winnerTeamId = match.teamAId;
   } else if (teamBWins >= neededWins) {
-    winnerTeamId = seriesMatches[0].teamBId;
+    winnerTeamId = match.teamBId;
   }
 
   return {
-    seriesMatches,
+    match,
     teamAWins,
     teamBWins,
     bestOf,
@@ -481,58 +504,103 @@ const updatePlayoffProgression = async (seasonId) => {
   }
 };
 
-const submitMatchScore = async (matchId, teamAScore, teamBScore) => {
+const submitMatchScore = async (matchId, winnerTeamName, inputTeamAScore = null, inputTeamBScore = null) => {
   const match = await PoolLeagueMatch.findById(matchId);
 
   if (!match) {
     throw new Error("Match not found.");
   }
 
-  const scoreA = Number(teamAScore);
-  const scoreB = Number(teamBScore);
-
-  if (Number.isNaN(scoreA) || Number.isNaN(scoreB)) {
-    throw new Error("Scores must be numeric.");
-  }
-
-  if (scoreA === scoreB) {
-    throw new Error("Ties are not allowed. Enter a winner.");
+  if (!winnerTeamName) {
+    throw new Error("Please select a winner.");
   }
 
   if (match.phase === "PLAYOFFS") {
-    const series = await getSeriesState(match.seasonId, match.seriesKey);
-    if (series?.winnerTeamId) {
-      throw new Error("This series is already decided.");
+    // Playoff matches: accept series score (e.g., 2-1)
+    if (inputTeamAScore === null || inputTeamBScore === null) {
+      throw new Error("Series scores are required for playoff matches.");
     }
-  }
 
-  const winnerTeamId = scoreA > scoreB ? match.teamAId : match.teamBId;
-  const loserTeamId = scoreA > scoreB ? match.teamBId : match.teamAId;
+    const teamASeriesWins = parseInt(inputTeamAScore, 10);
+    const teamBSeriesWins = parseInt(inputTeamBScore, 10);
+    
+    if (isNaN(teamASeriesWins) || isNaN(teamBSeriesWins) || teamASeriesWins < 0 || teamBSeriesWins < 0) {
+      throw new Error("Invalid scores provided.");
+    }
+    
+    if (teamASeriesWins === teamBSeriesWins) {
+      throw new Error("Series cannot be tied. One team must win.");
+    }
 
-  match.teamAScore = scoreA;
-  match.teamBScore = scoreB;
-  match.winnerTeamId = winnerTeamId;
-  match.loserTeamId = loserTeamId;
-  match.status = "COMPLETE";
-  match.completedAt = new Date();
+    // Validate winner matches higher score
+    if (winnerTeamName === match.teamAName && teamASeriesWins <= teamBSeriesWins) {
+      throw new Error("Winner must have higher series score.");
+    }
+    if (winnerTeamName === match.teamBName && teamBSeriesWins <= teamASeriesWins) {
+      throw new Error("Winner must have higher series score.");
+    }
 
-  await match.save();
+    if (winnerTeamName === match.teamAName) {
+      match.winnerTeamId = match.teamAId;
+      match.loserTeamId = match.teamBId;
+    } else {
+      match.winnerTeamId = match.teamBId;
+      match.loserTeamId = match.teamAId;
+    }
 
-  if (match.phase === "REGULAR") {
+    match.teamAScore = teamASeriesWins;
+    match.teamBScore = teamBSeriesWins;
+    match.status = "COMPLETE";
+    match.completedAt = new Date();
+
+    if (!match.scheduledAt) {
+      match.scheduledAt = new Date();
+    }
+
+    await match.save();
+    await updatePlayoffProgression(match.seasonId);
+
+  } else {
+    // Regular season matches: 1-0 scoring system
+    let winnerTeamId, loserTeamId;
+    let teamAScore, teamBScore;
+
+    if (winnerTeamName === match.teamAName) {
+      winnerTeamId = match.teamAId;
+      loserTeamId = match.teamBId;
+      teamAScore = 1;
+      teamBScore = 0;
+    } else if (winnerTeamName === match.teamBName) {
+      winnerTeamId = match.teamBId;
+      loserTeamId = match.teamAId;
+      teamAScore = 0;
+      teamBScore = 1;
+    } else {
+      throw new Error("Invalid team selected.");
+    }
+
+    match.teamAScore = teamAScore;
+    match.teamBScore = teamBScore;
+    match.winnerTeamId = winnerTeamId;
+    match.loserTeamId = loserTeamId;
+    match.status = "COMPLETE";
+    match.completedAt = new Date();
+    if (!match.scheduledAt) {
+      match.scheduledAt = new Date();
+    }
+
+    await match.save();
+
     const regularSeasonDone = await isRegularSeasonComplete(match.seasonId);
     if (regularSeasonDone) {
       await seedPlayoffs(match.seasonId);
     }
   }
 
-  if (match.phase === "PLAYOFFS") {
-    await updatePlayoffProgression(match.seasonId);
-  }
-
   return match;
 };
 
-const updateMatchSchedule = async (matchId, scheduledAt, location) => {
+const updateMatchSchedule = async (matchId, scheduledAt) => {
   const match = await PoolLeagueMatch.findById(matchId);
 
   if (!match) {
@@ -548,9 +616,8 @@ const updateMatchSchedule = async (matchId, scheduledAt, location) => {
   } else {
     match.scheduledAt = undefined;
   }
-  match.location = (location || "").trim();
 
-  if (match.scheduledAt || match.location) {
+  if (match.scheduledAt) {
     match.status = match.status === "COMPLETE" ? "COMPLETE" : "SCHEDULED";
   } else {
     match.status = match.status === "COMPLETE" ? "COMPLETE" : "TBD";
@@ -571,16 +638,41 @@ const formatMatchStatus = (match) => {
     return "Complete";
   }
 
-  if (match.scheduledAt || match.location || match.status === "SCHEDULED") {
+  if (match.scheduledAt || match.status === "SCHEDULED") {
     return "Scheduled";
   }
 
   return "TBD";
 };
 
+const fillRandomResults = async (seasonId) => {
+  const incompletedMatches = await PoolLeagueMatch.find({
+    seasonId,
+    phase: "REGULAR",
+    status: { $ne: "COMPLETE" },
+  });
+
+  if (incompletedMatches.length === 0) {
+    return { updated: 0, message: "No incomplete matches to fill." };
+  }
+
+  let updated = 0;
+  for (const match of incompletedMatches) {
+    const winner = Math.random() < 0.5 ? match.teamAName : match.teamBName;
+    await submitMatchScore(match._id, winner);
+    updated += 1;
+  }
+
+  return {
+    updated,
+    message: `Filled ${updated} random match result${updated > 1 ? "s" : ""}.`,
+  };
+};
+
 export {
   computeStandings,
   createTeam,
+  fillRandomResults,
   formatMatchStatus,
   generateRegularSchedule,
   getOrCreateCurrentSeason,

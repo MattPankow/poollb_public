@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const poolLeagueSeasonSchema = new mongoose.Schema({
   year: { type: Number, required: true },
-  semester: { type: Number, required: true },
+  semester: { type: String, required: true },
   status: {
     type: String,
     enum: ["SIGNUP", "REGULAR", "PLAYOFFS", "COMPLETE"],
@@ -10,6 +10,9 @@ const poolLeagueSeasonSchema = new mongoose.Schema({
   },
   regularWeeks: { type: Number, default: 4 },
   regularRounds: { type: Number, default: 8 },
+  startDate: Date,
+  daysBetweenWeeks: { type: Number, default: 7 },
+  seasonName: { type: String, default: "" },
   playoffsGenerated: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });

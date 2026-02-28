@@ -15,12 +15,10 @@
   <h1>Pool League Standings - <%= seasonLabel %></h1>
 
   <div class="pool-tabs">
-    <a href="/poolLeague/this-week" class="pool-tab">This Week / Playoffs</a>
+    <a href="/poolLeague/this-week" class="pool-tab">This Week</a>
     <a href="/poolLeague/history" class="pool-tab">Match History</a>
-    <a href="/poolLeague/standings" class="pool-tab active">Standings / Rankings</a>
+    <a href="/poolLeague/standings" class="pool-tab active">Standings</a>
   </div>
-
-  <p class="subtitle">Current phase: <%= status %></p>
 
   <div class="history-list">
     <% if (standings.length === 0) { %>
@@ -31,7 +29,6 @@
       <div class="history-row">
         <p><strong>#<%= entry.rank %> <%= entry.teamName %></strong></p>
         <p>Record: <%= entry.wins %>-<%= entry.losses %> | Win%: <%= (entry.winPct * 100).toFixed(1) %>%</p>
-        <p>PD: <%= entry.pointDifferential %> | PF: <%= entry.pointsFor %> | PA: <%= entry.pointsAgainst %></p>
       </div>
     <% }); %>
   </div>

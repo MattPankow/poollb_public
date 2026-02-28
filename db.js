@@ -51,7 +51,7 @@ async function readTeamsFromFile() {
       const rows = data
         .split(/\r?\n/)
         .map((line) => line.trim())
-        .filter((line) => line.length > 0 && !line.startsWith("#"));
+        .filter((line) => line.length > 0 && !line.startsWith("#") && !line.startsWith("Format:"));
 
       const parsed = rows
         .map((row) => row.split(",").map((value) => value.trim()))
@@ -59,7 +59,7 @@ async function readTeamsFromFile() {
         .map((parts) => {
           const [playerAName, playerBName] = parts;
           return {
-            teamName: `${playerAName} / ${playerBName}`,
+            teamName: `${playerAName} | ${playerBName}`,
             playerAName,
             playerBName,
           };
@@ -70,11 +70,84 @@ async function readTeamsFromFile() {
   });
 }
 
+async function readSeasonsFromFile() {
+  return new Promise((resolve, reject) => {
+    const filePath = path.join(import.meta.dirname, "seasons.csv");
+
+    if (!fs.existsSync(filePath)) {
+      resolve([]);
+      return;
+    }
+
+    fs.readFile(filePath, "utf8", (error, data) => {
+      if (error) {
+        console.error("Error reading seasons CSV file:", error);
+        reject(error);
+        return;
+      }
+
+      const rows = data
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0 && !line.startsWith("#") && !line.startsWith("year,"));
+
+      const parsed = rows
+        .map((row) => row.split(",").map((value) => value.trim()))
+        .filter((parts) => parts.length === 6)
+        .map((parts) => {
+          const [year, semester, startDate, regularWeeks, daysBetweenWeeks, seasonName] = parts;
+          return {
+            year: parseInt(year, 10),
+            semester,
+            startDate: new Date(startDate),
+            regularWeeks: parseInt(regularWeeks, 10),
+            daysBetweenWeeks: parseInt(daysBetweenWeeks, 10),
+            seasonName,
+          };
+        });;
+
+      resolve(parsed);
+    });
+  });
+}
+
+const seedSeasons = async () => {
+  const rawSeasons = await readSeasonsFromFile();
+
+  if (rawSeasons.length === 0) {
+    console.log("No seasons.csv entries found; skipped season seeding.");
+    return;
+  }
+
+  for (const seasonData of rawSeasons) {
+    const existing = await PoolLeagueSeason.findOne({
+      year: seasonData.year,
+      semester: seasonData.semester,
+    });
+
+    if (!existing) {
+      await PoolLeagueSeason.create({
+        year: seasonData.year,
+        semester: seasonData.semester,
+        startDate: seasonData.startDate,
+        regularWeeks: seasonData.regularWeeks,
+        daysBetweenWeeks: seasonData.daysBetweenWeeks,
+        seasonName: seasonData.seasonName,
+        regularRounds: seasonData.regularWeeks * 2,
+        status: "SIGNUP",
+      });
+      console.log(`Season '${seasonData.seasonName}' created`);
+    }
+  }
+};
+
 const getCurrentSeasonDescriptor = () => {
   const now = new Date();
+  const month = now.getMonth();
+  const semester = month < 6 ? "Spring" : "Fall";
   return {
     year: now.getFullYear(),
-    semester: now.getMonth() < 6 ? 1 : 2,
+    semester,
   };
 };
 
@@ -202,6 +275,7 @@ const initializeDatabase = async () => {
       }
     }
 
+    await seedSeasons();
     await seedPoolLeagueTeams();
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);

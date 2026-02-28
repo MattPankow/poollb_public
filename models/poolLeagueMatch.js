@@ -31,7 +31,6 @@ const poolLeagueMatchSchema = new mongoose.Schema({
     default: "TBD",
   },
   scheduledAt: Date,
-  location: String,
   teamAScore: Number,
   teamBScore: Number,
   winnerTeamId: {
@@ -49,12 +48,11 @@ const poolLeagueMatchSchema = new mongoose.Schema({
   },
   seriesKey: String,
   bestOf: Number,
-  gameNumber: Number,
   createdAt: { type: Date, default: Date.now },
 });
 
 poolLeagueMatchSchema.index({ seasonId: 1, phase: 1, week: 1, round: 1 });
-poolLeagueMatchSchema.index({ seasonId: 1, phase: 1, seriesKey: 1, gameNumber: 1 });
+poolLeagueMatchSchema.index({ seasonId: 1, phase: 1, seriesKey: 1 });
 
 const PoolLeagueMatch = mongoose.model("PoolLeagueMatch", poolLeagueMatchSchema);
 

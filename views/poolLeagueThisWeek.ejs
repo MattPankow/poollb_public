@@ -15,9 +15,9 @@
   <h1>Pool League - <%= seasonLabel %></h1>
 
   <div class="pool-tabs">
-    <a href="/poolLeague/this-week" class="pool-tab active"><%= isPlayoffsView ? 'Playoffs' : 'This Week' %></a>
+    <a href="/poolLeague/this-week" class="pool-tab active">This Week</a>
     <a href="/poolLeague/history" class="pool-tab">Match History</a>
-    <a href="/poolLeague/standings" class="pool-tab">Standings / Rankings</a>
+    <a href="/poolLeague/standings" class="pool-tab">Standings</a>
   </div>
 
   <% if (success) { %>
@@ -34,6 +34,7 @@
     <form method="GET" action="/poolLeague/this-week" class="controls">
       <label for="teamId">Select your team:</label>
       <select id="teamId" name="teamId" class="dropdown" onchange="this.form.submit()">
+        <option value="" <%= !activeTeamId ? 'selected' : '' %>>All Matches</option>
         <% teams.forEach(team => { %>
           <option value="<%= team._id %>" <%= String(team._id) === String(activeTeamId) ? 'selected' : '' %>><%= team.name %></option>
         <% }); %>
@@ -53,34 +54,96 @@
     <% matches.forEach(match => { %>
       <div class="match-card">
         <div class="match-top">
-          <p><strong>Opponent:</strong> <%= match.opponent %></p>
+          <% if (activeTeamId) { %>
+            <p><strong>Opponent:</strong> <%= match.opponent %></p>
+          <% } else { %>
+            <p><strong>Matchup:</strong> <%= match.matchup %></p>
+          <% } %>
           <p><strong>Status:</strong> <%= match.statusLabel %></p>
           <% if (match.phase === 'PLAYOFFS') { %>
-            <p><strong>Series:</strong> <%= match.playoffRound %> - Game <%= match.gameNumber %></p>
+            <p><strong>Series:</strong> <%= match.playoffRound %> - Best of <%= match.bestOf %></p>
+            <% if (match.statusLabel === 'Complete') { %>
+              <p><strong>Series Result:</strong> <%= match.teamAName %> <%= match.teamScore %> - <%= match.opponentScore %> <%= match.teamBName %></p>
+            <% } %>
           <% } %>
         </div>
 
         <div class="match-meta">
-          <p><strong>Time:</strong> <%= match.scheduledAt ? new Date(match.scheduledAt).toLocaleString() : 'TBD' %></p>
-          <p><strong>Location:</strong> <%= match.location || 'TBD' %></p>
+          <p><strong>Time:</strong> <%= match.scheduledAt ? new Date(match.scheduledAt).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'TBD' %></p>
         </div>
 
         <% if (match.statusLabel !== 'Complete') { %>
-          <form method="POST" action="/poolLeague/match/<%= match.id %>/schedule" class="inline-form">
-            <input type="hidden" name="teamId" value="<%= activeTeamId %>">
-            <input type="datetime-local" name="scheduledAt" class="input">
-            <input type="text" name="location" class="input" placeholder="Location (optional)">
-            <button type="submit" class="small-button">Save Time/Location</button>
-          </form>
-
           <form method="POST" action="/poolLeague/match/<%= match.id %>/score" class="inline-form">
             <input type="hidden" name="teamId" value="<%= activeTeamId %>">
-            <input type="number" name="teamAScore" class="input score" placeholder="<%= match.teamAName %>" required min="0">
-            <input type="number" name="teamBScore" class="input score" placeholder="<%= match.teamBName %>" required min="0">
-            <button type="submit" class="small-button">Submit Score</button>
+            <% if (match.phase === 'PLAYOFFS') { %>
+              <fieldset>
+                <legend>Enter Series Result</legend>
+                <select name="winner" class="dropdown" required>
+                  <option value="">Select Winner</option>
+                  <option value="<%= match.teamAName %>"><%= match.teamAName %></option>
+                  <option value="<%= match.teamBName %>"><%= match.teamBName %></option>
+                </select>
+                <div class="score-inputs">
+                  <label>
+                    <%= match.teamAName %> Wins:
+                    <input type="number" name="teamAScore" min="0" class="score-input" required>
+                  </label>
+                  <label>
+                    <%= match.teamBName %> Wins:
+                    <input type="number" name="teamBScore" min="0" class="score-input" required>
+                  </label>
+                </div>
+                <button type="submit" class="small-button">Submit Series Result</button>
+              </fieldset>
+            <% } else { %>
+              <select name="winner" class="dropdown" required>
+                <option value="">Select Winner</option>
+                <option value="<%= match.teamAName %>"><%= match.teamAName %></option>
+                <option value="<%= match.teamBName %>"><%= match.teamBName %></option>
+              </select>
+              <button type="submit" class="small-button">Submit Winner</button>
+            <% } %>
           </form>
         <% } else { %>
-          <p class="final-score"><strong>Final:</strong> <%= match.teamName %> <%= match.teamScore %> - <%= match.opponentScore %> <%= match.opponent %></p>
+          <% if (match.winnerTeamId && match.winnerTeamId === String(match.teamAId)) { %>
+            <p class="final-score"><strong>Series Winner:</strong> <%= match.teamAName %></p>
+          <% } else if (match.winnerTeamId && match.winnerTeamId === String(match.teamBId)) { %>
+            <p class="final-score"><strong>Series Winner:</strong> <%= match.teamBName %></p>
+          <% } %>
+          <% if (match.phase === 'PLAYOFFS') { %>
+            <form method="POST" action="/poolLeague/match/<%= match.id %>/score" class="inline-form">
+              <input type="hidden" name="teamId" value="<%= activeTeamId %>">
+              <fieldset>
+                <legend>Change Series Result</legend>
+                <select name="winner" class="dropdown" required>
+                  <option value="">Select Winner</option>
+                  <option value="<%= match.teamAName %>"><%= match.teamAName %></option>
+                  <option value="<%= match.teamBName %>"><%= match.teamBName %></option>
+                </select>
+                <div class="score-inputs">
+                  <label>
+                    <%= match.teamAName %> Wins:
+                    <input type="number" name="teamAScore" min="0" class="score-input" required>
+                  </label>
+                  <label>
+                    <%= match.teamBName %> Wins:
+                    <input type="number" name="teamBScore" min="0" class="score-input" required>
+                  </label>
+                </div>
+                <button type="submit" class="small-button">Change Result</button>
+              </fieldset>
+            </form>
+          <% } else { %>
+            <form method="POST" action="/poolLeague/match/<%= match.id %>/score" class="inline-form">
+              <input type="hidden" name="teamId" value="<%= activeTeamId %>">
+              <select name="winner" class="dropdown" required>
+                <option value="">Change Winner</option>
+                <option value="<%= match.teamAName %>"><%= match.teamAName %></option>
+                <option value="<%= match.teamBName %>"><%= match.teamBName %></option>
+              </select>
+              <button type="submit" class="small-button">Update Winner</button>
+            </form>
+          <% } %>
         <% } %>
       </div>
     <% }); %>
@@ -89,6 +152,15 @@
   <% if (season.status === 'SIGNUP') { %>
     <form method="POST" action="/poolLeague/generate-schedule" class="admin-control">
       <button type="submit" class="submit-button">Generate 4-Week Regular Season Schedule</button>
+    </form>
+  <% } %>
+
+  <% if (season.status === 'REGULAR') { %>
+    <form method="POST" action="/poolLeague/fill-random-results" class="admin-control">
+      <button type="submit" class="submit-button">Fill Random Match Results (Testing)</button>
+    </form>
+    <form method="POST" action="/poolLeague/force-start-playoffs" class="admin-control">
+      <button type="submit" class="submit-button">Force Start Playoffs (Testing)</button>
     </form>
   <% } %>
 </body>

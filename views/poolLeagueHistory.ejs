@@ -15,27 +15,19 @@
   <h1>Pool League Match History - <%= seasonLabel %></h1>
 
   <div class="pool-tabs">
-    <a href="/poolLeague/this-week" class="pool-tab">This Week / Playoffs</a>
+    <a href="/poolLeague/this-week" class="pool-tab">This Week</a>
     <a href="/poolLeague/history" class="pool-tab active">Match History</a>
-    <a href="/poolLeague/standings" class="pool-tab">Standings / Rankings</a>
+    <a href="/poolLeague/standings" class="pool-tab">Standings</a>
   </div>
 
   <form method="GET" action="/poolLeague/history" class="controls wide">
     <label for="teamId">Filter by team:</label>
-    <select id="teamId" name="teamId" class="dropdown">
+    <select id="teamId" name="teamId" class="dropdown" onchange="this.form.submit()">
+      <option value="" <%= !activeTeamId ? 'selected' : '' %>>All Matches</option>
       <% teams.forEach(team => { %>
         <option value="<%= team._id %>" <%= String(team._id) === String(activeTeamId) ? 'selected' : '' %>><%= team.name %></option>
       <% }); %>
     </select>
-
-    <label for="sortBy">Sort by:</label>
-    <select id="sortBy" name="sortBy" class="dropdown">
-      <option value="completedAt" <%= sortBy === 'completedAt' ? 'selected' : '' %>>Completed Time</option>
-      <option value="matchup" <%= sortBy === 'matchup' ? 'selected' : '' %>>Matchup</option>
-      <option value="winner" <%= sortBy === 'winner' ? 'selected' : '' %>>Winner</option>
-    </select>
-
-    <button type="submit" class="small-button">Apply</button>
   </form>
 
   <div class="history-list">
@@ -45,9 +37,13 @@
 
     <% rows.forEach(row => { %>
       <div class="history-row">
-        <p><strong><%= row.matchup %></strong> (<%= row.phase %><%= row.playoffRound ? ' ' + row.playoffRound : '' %>)</p>
-        <p>Score: <%= row.score %> | Winner: <%= row.winner %></p>
-        <p><%= row.completedAt ? new Date(row.completedAt).toLocaleString() : '' %></p>
+        <p><strong><%= row.matchup %></strong></p>
+        <% if (row.playoffRound) { %>
+          <p>Score: <%= row.score %> | Winner: <%= row.winner %></p>
+        <% } else { %>
+          <p>Winner: <%= row.winner %></p>
+        <% } %>
+        <p><%= row.completedAt ? new Date(row.completedAt).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '' %></p>
       </div>
     <% }); %>
   </div>
