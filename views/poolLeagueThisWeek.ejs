@@ -63,7 +63,7 @@
           <% if (match.phase === 'PLAYOFFS') { %>
             <p><strong>Series:</strong> <%= match.playoffRound %> - Best of <%= match.bestOf %></p>
             <% if (match.statusLabel === 'Complete') { %>
-              <p><strong>Series Result:</strong> <%= match.teamAName %> <%= match.teamScore %> - <%= match.opponentScore %> <%= match.teamBName %></p>
+              <p><strong>Series Result:</strong> <%= match.teamAName %> <%= match.teamAScore %> - <%= match.teamBScore %> <%= match.teamBName %></p>
             <% } %>
           <% } %>
         </div>
@@ -106,9 +106,9 @@
           </form>
         <% } else { %>
           <% if (match.winnerTeamId && match.winnerTeamId === String(match.teamAId)) { %>
-            <p class="final-score"><strong>Series Winner:</strong> <%= match.teamAName %></p>
+            <p class="final-score"><strong><%= match.phase === 'PLAYOFFS' ? 'Series Winner' : 'Winner' %>:</strong> <%= match.teamAName %></p>
           <% } else if (match.winnerTeamId && match.winnerTeamId === String(match.teamBId)) { %>
-            <p class="final-score"><strong>Series Winner:</strong> <%= match.teamBName %></p>
+            <p class="final-score"><strong><%= match.phase === 'PLAYOFFS' ? 'Series Winner' : 'Winner' %>:</strong> <%= match.teamBName %></p>
           <% } %>
           <% if (match.phase === 'PLAYOFFS') { %>
             <form method="POST" action="/poolLeague/match/<%= match.id %>/score" class="inline-form">
@@ -155,7 +155,8 @@
     </form>
   <% } %>
 
-  <%# TESTING BUTTONS - commented out for main build
+<%# TESTING BUTTONS - commented out for main build %>
+<% if (false) { %>
   <% if (season.status === 'REGULAR') { %>
     <form method="POST" action="/poolLeague/fill-random-results" class="admin-control">
       <button type="submit" class="submit-button">Fill Random Match Results (Testing)</button>
@@ -164,6 +165,6 @@
       <button type="submit" class="submit-button">Force Start Playoffs (Testing)</button>
     </form>
   <% } %>
-  %>
+<% } %>
 </body>
 </html>
