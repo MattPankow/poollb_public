@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pool League - Standings</title>
+  <link rel="stylesheet" href="/styles/header.css">
+  <link rel="stylesheet" href="/styles/poolLeague.css">
+</head>
+<body>
+  <h2>
+    <%- include('templates/header.ejs'); %>
+  </h2>
+
+  <h1>Pool League Standings - <%= seasonLabel %></h1>
+
+  <div class="pool-tabs">
+    <a href="/poolLeague/this-week" class="pool-tab">This Week</a>
+    <a href="/poolLeague/history" class="pool-tab">Match History</a>
+    <a href="/poolLeague/standings" class="pool-tab active">Standings</a>
+  </div>
+
+  <div class="history-list">
+    <% if (standings.length === 0) { %>
+      <p class="empty-state">No standings available yet.</p>
+    <% } %>
+
+    <% standings.forEach(entry => { %>
+      <div class="history-row">
+        <p><strong>#<%= entry.rank %> <%= entry.teamName %></strong></p>
+        <p>Record: <%= entry.wins %>-<%= entry.losses %> | Win%: <%= (entry.winPct * 100).toFixed(1) %>%</p>
+      </div>
+    <% }); %>
+  </div>
+</body>
+</html>

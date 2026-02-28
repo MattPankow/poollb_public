@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pool League - Match History</title>
+  <link rel="stylesheet" href="/styles/header.css">
+  <link rel="stylesheet" href="/styles/poolLeague.css">
+</head>
+<body>
+  <h2>
+    <%- include('templates/header.ejs'); %>
+  </h2>
+
+  <h1>Pool League Match History - <%= seasonLabel %></h1>
+
+  <div class="pool-tabs">
+    <a href="/poolLeague/this-week" class="pool-tab">This Week</a>
+    <a href="/poolLeague/history" class="pool-tab active">Match History</a>
+    <a href="/poolLeague/standings" class="pool-tab">Standings</a>
+  </div>
+
+  <form method="GET" action="/poolLeague/history" class="controls wide">
+    <label for="teamId">Filter by team:</label>
+    <select id="teamId" name="teamId" class="dropdown" onchange="this.form.submit()">
+      <option value="" <%= !activeTeamId ? 'selected' : '' %>>All Matches</option>
+      <% teams.forEach(team => { %>
+        <option value="<%= team._id %>" <%= String(team._id) === String(activeTeamId) ? 'selected' : '' %>><%= team.name %></option>
+      <% }); %>
+    </select>
+  </form>
+
+  <div class="history-list">
+    <% if (rows.length === 0) { %>
+      <p class="empty-state">No completed matches yet.</p>
+    <% } %>
+
+    <% rows.forEach(row => { %>
+      <div class="history-row">
+        <p><strong><%= row.matchup %></strong></p>
+        <% if (row.playoffRound) { %>
+          <p>Score: <%= row.score %> | Winner: <%= row.winner %></p>
+        <% } else { %>
+          <p>Winner: <%= row.winner %></p>
+        <% } %>
+        <p><%= row.completedAt ? new Date(row.completedAt).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '' %></p>
+      </div>
+    <% }); %>
+  </div>
+</body>
+</html>
