@@ -3,7 +3,7 @@ import PoolLeagueMatch from "../models/poolLeagueMatch.js";
 import PoolLeagueTeam from "../models/poolLeagueTeam.js";
 import {
   computeStandings,
-  fillRandomResults,
+  // fillRandomResults, // TESTING - commented out for main build
   formatMatchStatus,
   generateRegularSchedule,
   getOrCreateCurrentSeason,
@@ -204,6 +204,7 @@ router.post("/generate-schedule", async (_, res) => {
   }
 });
 
+/* TESTING ROUTES - commented out for main build
 router.post("/fill-random-results", async (_, res) => {
   try {
     const season = await getOrCreateCurrentSeason();
@@ -227,6 +228,7 @@ router.post("/force-start-playoffs", async (_, res) => {
     res.redirect(`/poolLeague/this-week?error=${message}`);
   }
 });
+*/
 
 router.post("/match/:matchId/score", async (req, res) => {
   try {
