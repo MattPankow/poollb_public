@@ -483,14 +483,51 @@ const tryCreateNextRoundSeries = async (seasonId, round, leftSeriesKey, rightSer
     PoolLeagueTeam.findById(right.winnerTeamId),
   ]);
 
-  await createSeriesMatches({
+  const existing = await PoolLeagueMatch.findOne({
     seasonId,
-    playoffRound: round,
+    phase: "PLAYOFFS",
     seriesKey: nextSeriesKey,
-    bestOf,
-    teamA,
-    teamB,
   });
+
+  if (!existing) {
+    await createSeriesMatches({
+      seasonId,
+      playoffRound: round,
+      seriesKey: nextSeriesKey,
+      bestOf,
+      teamA,
+      teamB,
+    });
+    return;
+  }
+
+  if (existing.status === "COMPLETE") {
+    return;
+  }
+
+  const existingTeamAId = existing.teamAId ? toId(existing.teamAId) : null;
+  const existingTeamBId = existing.teamBId ? toId(existing.teamBId) : null;
+  const nextTeamAId = teamA?._id ? toId(teamA._id) : null;
+  const nextTeamBId = teamB?._id ? toId(teamB._id) : null;
+
+  const teamChanged = existingTeamAId !== nextTeamAId || existingTeamBId !== nextTeamBId;
+
+  if (!teamChanged) {
+    return;
+  }
+
+  existing.teamAId = teamA._id;
+  existing.teamBId = teamB._id;
+  existing.teamAName = teamA.name;
+  existing.teamBName = teamB.name;
+  existing.teamAScore = undefined;
+  existing.teamBScore = undefined;
+  existing.winnerTeamId = undefined;
+  existing.loserTeamId = undefined;
+  existing.completedAt = undefined;
+  existing.status = existing.scheduledAt ? "SCHEDULED" : "TBD";
+
+  await existing.save();
 };
 
 const updatePlayoffProgression = async (seasonId) => {
@@ -501,6 +538,8 @@ const updatePlayoffProgression = async (seasonId) => {
   const finals = await getSeriesState(seasonId, "F-1");
   if (finals?.winnerTeamId) {
     await PoolLeagueSeason.findByIdAndUpdate(seasonId, { status: "COMPLETE" });
+  } else {
+    await PoolLeagueSeason.findByIdAndUpdate(seasonId, { status: "PLAYOFFS" });
   }
 };
 

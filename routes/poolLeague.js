@@ -79,7 +79,19 @@ router.get("/this-week", async (req, res) => {
       if (activeTeamId) {
         baseFilter.$or = [{ teamAId: activeTeamId }, { teamBId: activeTeamId }];
       }
-      matches = await PoolLeagueMatch.find(baseFilter).sort({ playoffRound: 1, seriesKey: 1, createdAt: 1 });
+      const ROUND_ORDER = { F: 1, SF: 2, QF: 3 };
+      matches = await PoolLeagueMatch.find(baseFilter).sort({ seriesKey: 1, createdAt: 1 });
+      matches.sort((matchA, matchB) => {
+        const roundA = ROUND_ORDER[matchA.playoffRound] ?? 99;
+        const roundB = ROUND_ORDER[matchB.playoffRound] ?? 99;
+        if (roundA !== roundB) return roundA - roundB;
+
+        const matchAComplete = matchA.status === "COMPLETE" ? 1 : 0;
+        const matchBComplete = matchB.status === "COMPLETE" ? 1 : 0;
+        if (matchAComplete !== matchBComplete) return matchAComplete - matchBComplete;
+
+        return (matchA.seriesKey || "").localeCompare(matchB.seriesKey || "");
+      });
     } else {
       baseFilter.phase = "REGULAR";
       baseFilter.week = currentWeek; // Filter by current week
