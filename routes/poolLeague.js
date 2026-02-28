@@ -9,6 +9,7 @@ import {
   getOrCreateCurrentSeason,
   getSeasonLabel,
   getTeamContext,
+  isRegularSeasonComplete,
   seedPlayoffs,
   submitMatchScore,
   updateMatchSchedule,
@@ -51,8 +52,21 @@ router.get("/", (_, res) => {
 
 router.get("/this-week", async (req, res) => {
   try {
-    const season = await getOrCreateCurrentSeason();
+    let season = await getOrCreateCurrentSeason();
     const seasonLabel = getSeasonLabel(season);
+
+    // Auto-seed playoffs if the regular season end date has passed
+    if (season.status === "REGULAR") {
+      try {
+        const done = await isRegularSeasonComplete(season._id);
+        if (done) {
+          await seedPlayoffs(season._id);
+          season = await getOrCreateCurrentSeason();
+        }
+      } catch (_) {
+        // Not ready yet (e.g. not enough teams), ignore
+      }
+    }
     const selectedTeamId = req.query.teamId;
     const teams = await PoolLeagueTeam.find({ seasonId: season._id }).sort({ name: 1 });
     const activeTeamId = selectedTeamId || null; // Default to null (all matches)

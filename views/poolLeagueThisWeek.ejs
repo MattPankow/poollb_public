@@ -151,7 +151,7 @@
 
   <% if (season.status === 'SIGNUP') { %>
     <form method="POST" action="/poolLeague/generate-schedule" class="admin-control">
-      <button type="submit" class="submit-button">Generate 4-Week Regular Season Schedule</button>
+      <button type="submit" class="submit-button">Generate <%= season.regularWeeks %>-Week Regular Season Schedule</button>
     </form>
   <% } %>
 

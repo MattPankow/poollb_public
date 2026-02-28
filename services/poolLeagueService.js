@@ -153,6 +153,10 @@ const generateRegularSchedule = async (seasonId) => {
     throw new Error("Regular season has already started for this season.");
   }
 
+  if (season.startDate && new Date() < new Date(season.startDate)) {
+    throw new Error("The season has not started yet. Schedule generation is not allowed before the start date.");
+  }
+
   const existing = await PoolLeagueMatch.countDocuments({ seasonId, phase: "REGULAR" });
   if (existing > 0) {
     return { created: 0, message: "Regular season schedule already exists." };
@@ -322,24 +326,34 @@ const isRegularSeasonComplete = async (seasonId) => {
     return false;
   }
 
-  // Get all teams to calculate rounds per week
-  const teams = await PoolLeagueTeam.find({ seasonId });
-  const totalMatchesPerRound = teams.length > 0 ? teams.length / 2 : 1;
+  // Trigger if end date has passed
+  if (season.startDate) {
+    const regularWeeks = season.regularWeeks || 4;
+    const daysBetweenWeeks = season.daysBetweenWeeks || 7;
+    const seasonEndDate = new Date(season.startDate);
+    seasonEndDate.setDate(seasonEndDate.getDate() + regularWeeks * daysBetweenWeeks);
+    if (new Date() >= seasonEndDate) {
+      return true;
+    }
+  }
 
-  // Count completed matches (rounds)
+  // Also trigger if all regular season matches are complete
+  const totalMatches = await PoolLeagueMatch.countDocuments({
+    seasonId,
+    phase: "REGULAR",
+  });
+
+  if (totalMatches === 0) {
+    return false;
+  }
+
   const completedMatches = await PoolLeagueMatch.countDocuments({
     seasonId,
     phase: "REGULAR",
     status: "COMPLETE",
   });
 
-  const completedRounds = totalMatchesPerRound > 0 ? Math.floor(completedMatches / totalMatchesPerRound) : 0;
-  const regularSeasonWeeks = season.regularWeeks || 4;
-  const regularSeasonRounds = regularSeasonWeeks * 2;
-
-  // Check if we've completed enough rounds to be past the final week
-  // (even if not all matches are complete, incomplete matches just don't count toward seeding)
-  return completedRounds >= regularSeasonRounds;
+  return completedMatches >= totalMatches;
 };
 
 const createSeriesMatches = async ({
@@ -554,6 +568,11 @@ const submitMatchScore = async (matchId, winnerTeamName, inputTeamAScore = null,
     throw new Error("Please select a winner.");
   }
 
+  const matchSeason = await PoolLeagueSeason.findById(match.seasonId);
+  if (matchSeason?.startDate && new Date() < new Date(matchSeason.startDate)) {
+    throw new Error("The season has not started yet. Scores cannot be submitted before the start date.");
+  }
+
   if (match.phase === "PLAYOFFS") {
     // Playoff matches: accept series score (e.g., 2-1)
     if (inputTeamAScore === null || inputTeamBScore === null) {
@@ -717,6 +736,7 @@ export {
   getOrCreateCurrentSeason,
   getSeasonLabel,
   getTeamContext,
+  isRegularSeasonComplete,
   seedPlayoffs,
   submitMatchScore,
   updateMatchSchedule,
