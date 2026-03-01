@@ -330,8 +330,9 @@ const isRegularSeasonComplete = async (seasonId) => {
   if (season.startDate) {
     const regularWeeks = season.regularWeeks || 4;
     const daysBetweenWeeks = season.daysBetweenWeeks || 7;
+    const totalBreakDays = season.breakAfterWeek ? (season.breakWeeks || 1) * daysBetweenWeeks : 0;
     const seasonEndDate = new Date(season.startDate);
-    seasonEndDate.setDate(seasonEndDate.getDate() + regularWeeks * daysBetweenWeeks);
+    seasonEndDate.setDate(seasonEndDate.getDate() + regularWeeks * daysBetweenWeeks + totalBreakDays);
     if (new Date() >= seasonEndDate) {
       return true;
     }

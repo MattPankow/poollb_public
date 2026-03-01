@@ -43,6 +43,9 @@
 
     <% if (!isPlayoffsView) { %>
       <h3>Week <%= currentWeek %> (Regular Season)</h3>
+      <% if (isBreakWeek) { %>
+        <p class="flash info">This week is a scheduled break — no matches. See you next week!</p>
+      <% } %>
     <% } else { %>
       <h3>Playoff Matches</h3>
     <% } %>

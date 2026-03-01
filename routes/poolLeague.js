@@ -83,6 +83,17 @@ router.get("/this-week", async (req, res) => {
 
     const isPlayoffsView = season.status === "PLAYOFFS" || season.status === "COMPLETE";
 
+    let isBreakWeek = false;
+    if (!isPlayoffsView && season.breakAfterWeek && season.startDate) {
+      const daysBetween = season.daysBetweenWeeks || 7;
+      const breakStart = new Date(season.startDate);
+      breakStart.setDate(breakStart.getDate() + season.breakAfterWeek * daysBetween);
+      const breakEnd = new Date(breakStart);
+      breakEnd.setDate(breakEnd.getDate() + (season.breakWeeks || 1) * daysBetween);
+      const now = new Date();
+      isBreakWeek = now >= breakStart && now < breakEnd;
+    }
+
     let matches = [];
     const baseFilter = {
       seasonId: season._id,
@@ -122,6 +133,7 @@ router.get("/this-week", async (req, res) => {
       activeTeamId,
       currentWeek,
       isPlayoffsView,
+      isBreakWeek,
       matches: matches.map((match) => serializeMatch(match, activeTeamId)),
       success: req.query.success || "",
       error: req.query.error || "",

@@ -150,6 +150,10 @@ h3 {
   background-color: #f9d8d8;
 }
 
+.flash.info {
+  background-color: #ddeeff;
+}
+
 .empty-state,
 .subtitle {
   text-align: center;

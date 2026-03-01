@@ -13,6 +13,8 @@ const poolLeagueSeasonSchema = new mongoose.Schema({
   startDate: Date,
   daysBetweenWeeks: { type: Number, default: 7 },
   seasonName: { type: String, default: "" },
+  breakAfterWeek: { type: Number, default: null },
+  breakWeeks: { type: Number, default: 1 },
   playoffsGenerated: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });

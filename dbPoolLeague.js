@@ -65,9 +65,9 @@ async function readSeasonsFromFile() {
 
       const parsed = rows
         .map((row) => row.split(",").map((value) => value.trim()))
-        .filter((parts) => parts.length === 6)
+        .filter((parts) => parts.length >= 6)
         .map((parts) => {
-          const [year, semester, startDate, regularWeeks, daysBetweenWeeks, seasonName] = parts;
+          const [year, semester, startDate, regularWeeks, daysBetweenWeeks, seasonName, breakAfterWeek, breakWeeks] = parts;
           return {
             year: parseInt(year, 10),
             semester,
@@ -75,6 +75,8 @@ async function readSeasonsFromFile() {
             regularWeeks: parseInt(regularWeeks, 10),
             daysBetweenWeeks: parseInt(daysBetweenWeeks, 10),
             seasonName,
+            breakAfterWeek: breakAfterWeek ? parseInt(breakAfterWeek, 10) : null,
+            breakWeeks: breakWeeks ? parseInt(breakWeeks, 10) : 1,
           };
         });
 
@@ -105,10 +107,18 @@ const seedSeasons = async () => {
         regularWeeks: seasonData.regularWeeks,
         daysBetweenWeeks: seasonData.daysBetweenWeeks,
         seasonName: seasonData.seasonName,
+        breakAfterWeek: seasonData.breakAfterWeek,
+        breakWeeks: seasonData.breakWeeks,
         regularRounds: seasonData.regularWeeks * 2,
         status: "SIGNUP",
       });
       console.log(`Season '${seasonData.seasonName}' created`);
+    } else {
+      // Update break fields on existing seasons so CSV changes take effect on restart
+      await PoolLeagueSeason.findByIdAndUpdate(existing._id, {
+        breakAfterWeek: seasonData.breakAfterWeek,
+        breakWeeks: seasonData.breakWeeks,
+      });
     }
   }
 };
