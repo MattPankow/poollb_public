@@ -13,6 +13,7 @@ import rulesRouter from "./routes/rules.js";
 import patchNotesRouter from "./routes/patchNotes.js";
 import superlativesRouter from "./routes/superlatives.js";
 import headRouter from "./routes/headToHead.js";
+import poolLeagueRouter from "./routes/poolLeague.js";
 
 const app = express();
 const server = { Server }.Server(app);
@@ -30,6 +31,7 @@ app.use("/rules", rulesRouter);
 app.use("/patchNotes", patchNotesRouter);
 app.use("/superlatives", superlativesRouter);
 app.use("/headToHead", headRouter);
+app.use("/poolLeague", poolLeagueRouter);
 app.use("/", homeRouter);
 
 app.use(

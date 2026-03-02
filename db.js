@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
+import Player from "./models/players.js";
+import seedPoolLeagueData from "./dbPoolLeague.js";
 dotenv.config();
 
 const {
@@ -74,6 +76,8 @@ const initializeDatabase = async () => {
         throw error;
       }
     }
+
+    await seedPoolLeagueData();
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
   }
