@@ -1,15 +1,17 @@
 import mongoose from "mongoose";
 import PoolLeagueTeam from "../models/poolLeagueTeam.js";
 import PoolLeagueMatch from "../models/poolLeagueMatch.js";
+import PoolLeagueSeason from "../models/poolLeagueSeason.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-// ── CONFIG ────────────────────────────────────────────────────────────────────
-const OLD_NAME = "OLD_NAME"; // Exact name to search for (case-sensitive)
-const NEW_NAME = "NEW_NAME"; // New name to replace with
-// ─────────────────────────────────────────────────────────────────────────────
-// Run: node scripts/renamePlayer.js
-// Testing: docker-compose exec poollb node scripts/renamePlayer.js
+// Usage: docker-compose exec poollb node scripts/renamePlayer.js "Old Name" "New Name" "Spring 2026"
+const [OLD_NAME, NEW_NAME, SEASON_LABEL] = process.argv.slice(2);
+
+if (!OLD_NAME || !NEW_NAME || !SEASON_LABEL) {
+  console.error('Usage: node scripts/renamePlayer.js "Old Name" "New Name" "Spring 2026 2v2"');
+  process.exit(1);
+}
 
 const {
   MONGO_HOSTNAME,
@@ -37,8 +39,24 @@ mongoose.connect(mongoUri, {
 
 const renamePlayer = async () => {
   try {
-    // 1. Update playerNames[] and name on any PoolLeagueTeam that contains the old name
+    // Find the season by seasonName or "Semester Year" format
+    const [semester, year] = SEASON_LABEL.split(" ");
+    const season = await PoolLeagueSeason.findOne({
+      $or: [
+        { seasonName: SEASON_LABEL },
+        { semester, year: parseInt(year) },
+      ],
+    });
+
+    if (!season) {
+      console.error(`Season "${SEASON_LABEL}" not found. Aborting.`);
+      return;
+    }
+    console.log(`Season found: ${season.seasonName || `${season.semester} ${season.year}`} (${season.status})`);
+
+    // 1. Update playerNames[] and name on any PoolLeagueTeam in this season that contains the old name
     const affectedTeams = await PoolLeagueTeam.find({
+      seasonId: season._id,
       $or: [
         { playerNames: OLD_NAME },
         { name: { $regex: OLD_NAME, $options: "i" } },
@@ -63,11 +81,11 @@ const renamePlayer = async () => {
       // If the team name changed, update all PoolLeagueMatch records referencing it
       if (oldTeamName !== newTeamName) {
         const matchResultA = await PoolLeagueMatch.updateMany(
-          { teamAName: oldTeamName },
+          { seasonId: season._id, teamAName: oldTeamName },
           { $set: { teamAName: newTeamName } }
         );
         const matchResultB = await PoolLeagueMatch.updateMany(
-          { teamBName: oldTeamName },
+          { seasonId: season._id, teamBName: oldTeamName },
           { $set: { teamBName: newTeamName } }
         );
         matchesModified += matchResultA.modifiedCount + matchResultB.modifiedCount;
