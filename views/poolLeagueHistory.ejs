@@ -43,7 +43,7 @@
         <% } else { %>
           <p>Winner: <%= row.winner %></p>
         <% } %>
-        <p><%= row.completedAt ? new Date(row.completedAt).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '' %></p>
+        <p><%= row.completedAt ? new Date(row.completedAt).toLocaleString('en-US', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '' %></p>
       </div>
     <% }); %>
   </div>
