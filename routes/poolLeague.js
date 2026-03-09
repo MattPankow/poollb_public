@@ -71,17 +71,47 @@ router.get("/this-week", async (req, res) => {
     const teams = await PoolLeagueTeam.find({ seasonId: season._id }).sort({ name: 1 });
     const activeTeamId = selectedTeamId || null; // Default to null (all matches)
 
-    const completedRounds = await PoolLeagueMatch.countDocuments({
-      seasonId: season._id,
-      phase: "REGULAR",
-      status: "COMPLETE",
-    });
-
-    const totalMatchesPerRound = teams.length > 0 ? teams.length / 2 : 1;
-    const roundsFinished = totalMatchesPerRound > 0 ? Math.floor(completedRounds / totalMatchesPerRound) : 0;
-    const currentWeek = Math.min(season.regularWeeks || 4, Math.floor(roundsFinished / 2) + 1);
-
     const isPlayoffsView = season.status === "PLAYOFFS" || season.status === "COMPLETE";
+    const regularWeeks = season.regularWeeks || 4;
+    let currentWeek = 1;
+
+    if (!isPlayoffsView) {
+      if (season.startDate) {
+        const now = new Date();
+        const startDate = new Date(season.startDate);
+        const dayMs = 24 * 60 * 60 * 1000;
+        const daysBetween = Math.max(1, season.daysBetweenWeeks || 7);
+
+        if (now >= startDate) {
+          const elapsedDays = Math.floor((now - startDate) / dayMs);
+          let adjustedElapsedDays = elapsedDays;
+
+          // Pause week advancement during any configured break window.
+          if (season.breakAfterWeek) {
+            const breakStartOffsetDays = season.breakAfterWeek * daysBetween;
+            if (elapsedDays >= breakStartOffsetDays) {
+              const breakDurationDays = (season.breakWeeks || 1) * daysBetween;
+              const daysSinceBreakStart = elapsedDays - breakStartOffsetDays;
+              const pausedDays = Math.min(daysSinceBreakStart, breakDurationDays);
+              adjustedElapsedDays -= pausedDays;
+            }
+          }
+
+          const elapsedWeeks = Math.floor(adjustedElapsedDays / daysBetween);
+          currentWeek = Math.min(regularWeeks, elapsedWeeks + 1);
+        }
+      } else {
+        // Fallback for older seasons without startDate: infer current week from completed rounds.
+        const completedRounds = await PoolLeagueMatch.countDocuments({
+          seasonId: season._id,
+          phase: "REGULAR",
+          status: "COMPLETE",
+        });
+        const totalMatchesPerRound = teams.length > 0 ? teams.length / 2 : 1;
+        const roundsFinished = totalMatchesPerRound > 0 ? Math.floor(completedRounds / totalMatchesPerRound) : 0;
+        currentWeek = Math.min(regularWeeks, Math.floor(roundsFinished / 2) + 1);
+      }
+    }
 
     let isBreakWeek = false;
     if (!isPlayoffsView && season.breakAfterWeek && season.startDate) {
@@ -118,12 +148,29 @@ router.get("/this-week", async (req, res) => {
         return (matchA.seriesKey || "").localeCompare(matchB.seriesKey || "");
       });
     } else {
-      baseFilter.phase = "REGULAR";
-      baseFilter.week = currentWeek; // Filter by current week
+      const weekVisibilityFilter = currentWeek <= 1
+        ? { week: 1 }
+        : {
+          $or: [
+            { week: currentWeek },
+            { week: { $lt: currentWeek }, status: { $ne: "COMPLETE" } },
+          ],
+        };
+
+      const regularFilters = [
+        { seasonId: season._id, phase: "REGULAR" },
+        weekVisibilityFilter,
+      ];
+
       if (activeTeamId) {
-        baseFilter.$or = [{ teamAId: activeTeamId }, { teamBId: activeTeamId }];
+        regularFilters.push({ $or: [{ teamAId: activeTeamId }, { teamBId: activeTeamId }] });
       }
-      matches = await PoolLeagueMatch.find(baseFilter).sort({ round: 1, createdAt: 1 });
+
+      matches = await PoolLeagueMatch.find({ $and: regularFilters }).sort({
+        week: 1,
+        round: 1,
+        createdAt: 1,
+      });
     }
 
     res.render("poolLeagueThisWeek", {
